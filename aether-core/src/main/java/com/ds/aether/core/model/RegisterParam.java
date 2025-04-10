@@ -18,4 +18,6 @@ public class RegisterParam implements Serializable {
 
     private String host;
 
+    private String contextPath;
+
 }

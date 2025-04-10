@@ -7,6 +7,7 @@ server:
 aether:
   server:
     host: localhost:8081
+    context-path: /api
   client:
     name: executor1
     host: localhost:8082

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONObject;
+import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.job.Job;
 import com.ds.aether.core.model.RegisterParam;
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +37,16 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
 
     @Override
     public void registerExecutor() {
-        String url = serverHost + "/api/executor/register";
+        String url = serverHost + ServerConstant.EXECUTOR_REGISTER_PATH;
+        // 客户端请求端口
+        String clientPort = context.getEnvironment().getProperty("server.port", "8080");
+        // 客户端请求上下文路径
+        String contextPath = context.getEnvironment().getProperty("server.servlet.context-path", "");
+
         RegisterParam registerParam = new RegisterParam();
         registerParam.setName(clientName);
         registerParam.setHost(clientHost);
+
         HttpUtil.post(url, JSONObject.toJSONString(registerParam));
         log.info("执行器【{}】已注册", clientName);
     }
