@@ -19,7 +19,7 @@ import org.springframework.util.CollectionUtils;
 /**
  * @author ds
  * @date 2025/4/10
- * @description
+ * @description Spring环境执行器
  */
 @Slf4j
 public class SpringExecutor extends AbstractExecutor implements ApplicationContextAware, SmartInitializingSingleton {

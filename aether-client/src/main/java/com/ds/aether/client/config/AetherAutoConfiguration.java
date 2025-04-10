@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author ds
  * @date 2025/4/10
- * @description aether自动配置累
+ * @description aether自动配置类
  */
 @Configuration
 @ComponentScan("com.ds.aether")

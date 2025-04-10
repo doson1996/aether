@@ -3,7 +3,7 @@ package com.ds.aether.client.executor;
 /**
  * @author ds
  * @date 2025/4/10
- * @description 执行器
+ * @description 执行器顶级接口
  */
 public interface Executor {
 

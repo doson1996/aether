@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author ds
  * @date 2025/4/10
- * @description
+ * @description 执行器抽象类
  */
 @Slf4j
 public abstract class AbstractExecutor implements Executor {
