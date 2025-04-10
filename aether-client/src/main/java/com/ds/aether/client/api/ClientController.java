@@ -3,6 +3,7 @@ package com.ds.aether.client.api;
 import javax.annotation.Resource;
 
 import com.ds.aether.client.executor.Executor;
+import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.Result;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +22,10 @@ public class ClientController {
     private Executor executor;
 
     @DeleteMapping("exec-job")
-    public Result<String> execJob(String jobName) {
+    public Result<String> execJob(ExecJobParam param) {
+        String jobName = param.getJobName();
         executor.executeJob(jobName);
-        return Result.ok("执行job成功!");
+        return Result.ok("执行任务【" + jobName + "】成功!");
     }
 
 }

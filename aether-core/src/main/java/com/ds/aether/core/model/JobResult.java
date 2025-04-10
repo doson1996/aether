@@ -1,4 +1,4 @@
-package com.ds.aether.core.job;
+package com.ds.aether.core.model;
 
 import lombok.Data;
 

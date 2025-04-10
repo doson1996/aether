@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.hutool.core.util.StrUtil;
+import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.RegisterParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.server.model.ExecutorInfo;
@@ -26,6 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExecutorController {
 
     private static final Map<String, ExecutorInfo> EXECUTORS = new ConcurrentHashMap<>();
+
+    @PostMapping("exec-job")
+    public Result<String> execJob(ExecJobParam param) {
+        return Result.ok("执行job成功!");
+    }
 
     @GetMapping("list")
     public Result<Map<String, ExecutorInfo>> list() {

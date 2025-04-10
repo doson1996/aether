@@ -2,7 +2,7 @@ package com.ds.aether.example.job;
 
 import com.ds.aether.core.job.AbstractJob;
 import com.ds.aether.core.job.Job;
-import com.ds.aether.core.job.JobResult;
+import com.ds.aether.core.model.JobResult;
 
 /**
  * @author ds

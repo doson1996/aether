@@ -1,5 +1,7 @@
 package com.ds.aether.core.job;
 
+import com.ds.aether.core.model.JobResult;
+
 /**
  * @author ds
  * @date 2025/4/10
