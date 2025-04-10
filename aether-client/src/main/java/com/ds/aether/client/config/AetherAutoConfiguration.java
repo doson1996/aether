@@ -2,6 +2,7 @@ package com.ds.aether.client.config;
 
 import com.ds.aether.client.executor.SpringExecutor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * @description
  */
 @Configuration
+@ComponentScan("com.ds.aether.client")
 public class AetherAutoConfiguration {
 
     @Bean
