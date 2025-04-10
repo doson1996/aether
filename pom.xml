@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-parent</artifactId>
+		<version>2.2.13.RELEASE</version>
+	</parent>
+
+	<groupId>com.ds.aether</groupId>
+	<artifactId>aether</artifactId>
+    <version>${rversion}</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>aether-server</module>
+        <module>aether-client</module>
+        <module>aether-example</module>
+        <module>aether-core</module>
+    </modules>
+
+    <properties>
+        <rversion>1.0.0.RELEASE</rversion>
+		<maven.compiler.source>8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lombok.version>1.18.32</lombok.version>
+        <hutool.version>5.8.11</hutool.version>
+        <fastjson.version>2.0.19</fastjson.version>
+	</properties>
+
+	<dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.ds.aether</groupId>
+                <artifactId>aether-core</artifactId>
+                <version>${rversion}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

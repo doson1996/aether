@@ -1,0 +1,12 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /api
+
+
+aether:
+  server:
+    host: localhost:8081
+  client:
+    name: executor1
+    host: localhost:8082
