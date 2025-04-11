@@ -1,8 +1,7 @@
 package com.ds.aether.client.executor;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.ds.aether.client.context.AetherContext;
+import com.ds.aether.client.job.JobInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,7 +12,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractExecutor implements Executor {
 
-//    private static final Map<String, ExecutorInfo> EXECUTORS = new ConcurrentHashMap<>();
+    /**
+     * 注册任务信息
+     *
+     * @param jobName
+     * @param jobInfo
+     */
+    protected static void registerJobInfo(String jobName, JobInfo jobInfo) {
+        AetherContext.addJobInfo(jobName, jobInfo);
+    }
 
     /**
      * 项目启动之后

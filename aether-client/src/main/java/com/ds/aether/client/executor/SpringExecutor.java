@@ -1,20 +1,19 @@
 package com.ds.aether.client.executor;
 
-import java.util.Map;
-
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONObject;
+import com.ds.aether.client.context.AetherContext;
+import com.ds.aether.client.job.JobInfo;
+import com.ds.aether.client.job.SpringJobInfo;
 import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.job.Job;
-import com.ds.aether.core.model.RegisterParam;
+import com.ds.aether.core.model.client.RegisterParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.util.CollectionUtils;
 
 /**
  * @author ds
@@ -56,21 +55,32 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         if (context == null) {
             return;
         }
-        // 拿到所有带@Job的bean
-        Map<String, Object> jobBeans = context.getBeansWithAnnotation(Job.class);
-        if (CollectionUtils.isEmpty(jobBeans)) {
-            return;
-        }
 
-        jobBeans.forEach((beanName, bean) -> {
-            System.out.println("beanName = " + beanName + bean);
-        });
+        String[] beanNames = context.getBeanNamesForType(Object.class, false, true);
+        for (String beanName : beanNames) {
+            Job jobAnnotation = context.findAnnotationOnBean(beanName, Job.class);
+            // 如果bean没有@Job注解，跳过处理
+            if (jobAnnotation == null)
+                continue;
+
+            // 任务名
+            String jobName = jobAnnotation.name();
+            // 构建任务信息
+            JobInfo jobInfo = new SpringJobInfo(jobName, beanName);
+            // 注册任务信息
+            registerJobInfo(jobName, jobInfo);
+        }
 
     }
 
     @Override
     public void executeJob(String jobName) {
-
+        JobInfo jobInfo = AetherContext.getJobInfo(jobName);
+        if (jobInfo == null) {
+           log.error("根据任务名【{}】找不到任务信息!", jobName);
+           return;
+        }
+        jobInfo.execute();
     }
 
     @Override

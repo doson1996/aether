@@ -3,9 +3,9 @@ package com.ds.aether.server.controller;
 import cn.hutool.core.util.StrUtil;
 import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.model.ExecJobParam;
-import com.ds.aether.core.model.RegisterParam;
+import com.ds.aether.core.model.client.RegisterParam;
 import com.ds.aether.core.model.Result;
-import com.ds.aether.server.model.ExecutorInfo;
+import com.ds.aether.core.model.server.ExecutorInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,7 +46,7 @@ public class ExecutorController {
         if (EXECUTORS.containsKey(name)) {
             return Result.fail("执行器已存在!");
         }
-        ExecutorInfo executorInfo = new ExecutorInfo(name, host);
+        ExecutorInfo executorInfo = new ExecutorInfo(name, host, param.getContextPath());
         EXECUTORS.put(executorInfo.getName(), executorInfo);
         return Result.ok("注册执行器成功!");
     }

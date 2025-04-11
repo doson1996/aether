@@ -1,4 +1,4 @@
-package com.ds.aether.core.model;
+package com.ds.aether.core.model.client;
 
 import java.io.Serializable;
 

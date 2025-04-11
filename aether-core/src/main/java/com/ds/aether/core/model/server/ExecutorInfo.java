@@ -1,7 +1,8 @@
-package com.ds.aether.server.model;
+package com.ds.aether.core.model.server;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author ds
@@ -10,10 +11,13 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ExecutorInfo {
 
     private String name;
 
     private String host;
+
+    private String contextPath;
 
 }
