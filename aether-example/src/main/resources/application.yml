@@ -9,5 +9,5 @@ aether:
     host: localhost:8081
     context-path: /api
   client:
-    name: executor1
+    #name: executor1
     #host: localhost:8082

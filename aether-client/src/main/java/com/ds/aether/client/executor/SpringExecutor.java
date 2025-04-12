@@ -53,7 +53,7 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         // 构建注册执行器参数
         RegisterParam registerParam = new RegisterParam();
         registerParam.setName(clientName);
-        registerParam.setHost(clientHost + clientPort);
+        registerParam.setHost(clientHost + ":" + clientPort);
         registerParam.setContextPath(contextPath);
 
         // 注册执行器请求地址

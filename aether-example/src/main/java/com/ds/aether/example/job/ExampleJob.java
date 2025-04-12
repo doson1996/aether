@@ -3,18 +3,20 @@ package com.ds.aether.example.job;
 import com.ds.aether.core.job.AbstractJob;
 import com.ds.aether.core.job.Job;
 import com.ds.aether.core.model.JobResult;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ds
  * @date 2025/4/10
  * @description
  */
+@Slf4j
 @Job(name = "job1")
 public class ExampleJob extends AbstractJob {
 
     @Override
     public JobResult execute() throws Exception {
-        System.out.println("true = " + true);
+        log.info("执行任务...");
         return JobResult.success();
     }
 

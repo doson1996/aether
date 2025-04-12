@@ -2,6 +2,7 @@ package com.ds.aether.client.api;
 
 import cn.hutool.core.util.StrUtil;
 import com.ds.aether.client.executor.Executor;
+import com.ds.aether.core.constant.ClientConstant;
 import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.Result;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,7 @@ import javax.annotation.Resource;
  * @description 客户端相关api
  */
 @RestController
-@RequestMapping("client")
+@RequestMapping(ClientConstant.CLIENT_PATH)
 public class ClientController {
 
     @Resource
