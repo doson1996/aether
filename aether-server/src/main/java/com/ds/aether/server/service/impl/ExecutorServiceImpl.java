@@ -32,13 +32,17 @@ public class ExecutorServiceImpl implements ExecutorService {
 
     @Override
     public Result<String> execJob(ExecJobParam param) {
+        if (param == null || StrUtil.isBlank(param.getJobName())) {
+            return Result.fail("参数错误!");
+        }
+
         // 获取所有执行器
         Map<String, ExecutorInfo> executors = executorStorage.findAll();
         if (executors.isEmpty()) {
             return Result.fail("没有可用的执行器!");
         }
 
-        // 轮询选择执行器
+        // todo 随机选择执行器，实现多种算法
         int index = (int) (System.currentTimeMillis() % executors.size());
         String[] executorNames = executors.keySet().toArray(new String[0]);
         ExecutorInfo selectedExecutor = executors.get(executorNames[index]);
@@ -46,9 +50,9 @@ public class ExecutorServiceImpl implements ExecutorService {
         // 将任务发送到指定的执行器
         boolean taskExecuted = sendTaskToExecutor(selectedExecutor, param);
         if (taskExecuted) {
-            return Result.ok("任务已成功分配给执行器: " + selectedExecutor.getName());
+            return Result.ok("任务[" + param.getJobName() + "]已成功分配给执行器: " + selectedExecutor.getName());
         } else {
-            return Result.fail("任务分配失败!");
+            return Result.fail("任务[" + param.getJobName() + "]分配失败!");
         }
     }
 
