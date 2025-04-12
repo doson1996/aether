@@ -1,9 +1,9 @@
 package com.ds.aether.client.context;
 
+import com.ds.aether.client.job.JobInfo;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.ds.aether.client.job.JobInfo;
 
 /**
  * @author ds
@@ -31,6 +31,15 @@ public class AetherContext {
      */
     public static JobInfo getJobInfo(String jobName) {
         return JOB_INFO_REPOSITORY.get(jobName);
+    }
+
+    /**
+     * 是否已经任务信息
+     *
+     * @param jobName
+     */
+    public static boolean containsJobInfo(String jobName) {
+        return JOB_INFO_REPOSITORY.containsKey(jobName);
     }
 
 }

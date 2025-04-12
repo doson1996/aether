@@ -10,7 +10,7 @@ import com.ds.aether.core.model.JobResult;
  * @description
  */
 @Job(name = "job1")
-public class ExampleJob extends AbstractJob {
+public class TestJob extends AbstractJob {
 
     @Override
     public JobResult execute() throws Exception {
