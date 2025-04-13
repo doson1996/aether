@@ -22,6 +22,11 @@ public class ServerConstant extends AetherConstant {
     /**
      * 注册执行器请求路径
      */
-    public static final String EXECUTOR_REGISTER_PATH = SERVER_API + "/executor/register";
+    public static final String EXECUTOR_REGISTER_PATH = SERVER_API + EXECUTOR_PATH + "/register";
+
+    /**
+     * 服务端心跳请求路径
+     */
+    public static final String CLIENT_HEARTBEAT_PATH = SERVER_API + EXECUTOR_PATH + "/heartbeat";
 
 }

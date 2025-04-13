@@ -4,7 +4,9 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.core.constant.ClientConstant;
+import com.ds.aether.core.constant.ExecutorStatus;
 import com.ds.aether.core.model.ExecJobParam;
+import com.ds.aether.core.model.HeartbeatParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.client.RegisterParam;
 import com.ds.aether.core.model.server.ExecutorInfo;
@@ -97,7 +99,7 @@ public class ExecutorServiceImpl implements ExecutorService {
         if (executorStorage.exist(name)) {
             return Result.fail("执行器已存在!");
         }
-        ExecutorInfo executorInfo = new ExecutorInfo(name, host, param.getContextPath());
+        ExecutorInfo executorInfo = new ExecutorInfo(name, host, param.getContextPath(), ExecutorStatus.ONLINE);
         executorStorage.add(executorInfo);
         return Result.ok("注册执行器成功!");
     }
@@ -118,8 +120,24 @@ public class ExecutorServiceImpl implements ExecutorService {
     }
 
     @Override
-    public Result<String> heartbeat(String name) {
-        return null;
+    public Result<String> heartbeat(HeartbeatParam param) {
+        if (param == null || StrUtil.isBlank(param.getName())) {
+            return Result.fail("执行器名称不能为空!");
+        }
+
+        ExecutorInfo executorInfo = executorStorage.find(param.getName());
+        if (executorInfo == null) {
+            return Result.fail("执行器不存在!");
+        }
+
+        // 更新最后心跳时间
+        executorInfo.setLastHeartbeat(System.currentTimeMillis());
+        // 如果状态为离线，则更新为在线
+        if (ExecutorStatus.OFFLINE.equals(executorInfo.getStatus())) {
+            executorInfo.setStatus(ExecutorStatus.ONLINE);
+        }
+        executorStorage.update(executorInfo);
+        return Result.ok("心跳接收成功!");
     }
 
 }

@@ -2,6 +2,7 @@ package com.ds.aether.server.controller;
 
 import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.model.ExecJobParam;
+import com.ds.aether.core.model.HeartbeatParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.client.RegisterParam;
 import com.ds.aether.core.model.server.ExecutorInfo;
@@ -53,6 +54,11 @@ public class ExecutorController {
     @DeleteMapping("remove-all")
     public Result<String> removeAll() {
         return executorService.removeAll();
+    }
+
+    @PostMapping("heartbeat")
+    public Result<String> heartbeat(@RequestBody HeartbeatParam param) {
+        return executorService.heartbeat(param);
     }
 
 }

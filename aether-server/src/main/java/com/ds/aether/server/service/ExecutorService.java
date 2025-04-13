@@ -1,6 +1,7 @@
 package com.ds.aether.server.service;
 
 import com.ds.aether.core.model.ExecJobParam;
+import com.ds.aether.core.model.HeartbeatParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.client.RegisterParam;
 import com.ds.aether.core.model.server.ExecutorInfo;
@@ -55,9 +56,9 @@ public interface ExecutorService {
     /**
      * 心跳
      *
-     * @param name
+     * @param param
      * @return
      */
-    Result<String> heartbeat(String name);
+    Result<String> heartbeat(HeartbeatParam param);
 
 }

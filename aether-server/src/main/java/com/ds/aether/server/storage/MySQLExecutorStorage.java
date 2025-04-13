@@ -20,6 +20,11 @@ public class MySQLExecutorStorage implements ExecutorStorage {
     }
 
     @Override
+    public ExecutorInfo find(String name) {
+        return null;
+    }
+
+    @Override
     public boolean exist(String name) {
         return false;
     }
@@ -36,6 +41,11 @@ public class MySQLExecutorStorage implements ExecutorStorage {
 
     @Override
     public void removeAll() {
+
+    }
+
+    @Override
+    public void update(ExecutorInfo executorInfo) {
 
     }
 

@@ -10,6 +10,7 @@ import com.ds.aether.client.job.JobInfo;
 import com.ds.aether.client.job.SpringJobInfo;
 import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.job.Job;
+import com.ds.aether.core.model.HeartbeatParam;
 import com.ds.aether.core.model.client.RegisterParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -31,14 +32,15 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
 
     private ApplicationContext context;
 
+    /**
+     * 客户端名称
+     */
+    private String clientName;
+
     @Override
     public void registerExecutor() {
-        // 客户端名称
-        String clientName = context.getEnvironment().getProperty("aether.client.name", "");
-        // 如果没指定客户端名称，生成一个uuid
-        if (StrUtil.isBlank(clientName)) {
-            clientName = UUID.fastUUID().toString();
-        }
+        // 获取客户端名称
+        getClientName();
         // 客户端ip
         String clientHost = context.getEnvironment().getProperty("aether.client.host", "");
         // 如果没指定ip，自动获取
@@ -116,6 +118,31 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
     @Override
     public void afterSingletonsInstantiated() {
         super.start();
+    }
+
+
+    @Override
+    protected void sendHeartbeat() {
+        HeartbeatParam heartbeatParam = new HeartbeatParam();
+        heartbeatParam.setName(getClientName());
+        // 执行器心跳请求地址
+        String url = serverHost + ServerConstant.CLIENT_HEARTBEAT_PATH;
+        // 发送心跳请求
+        HttpUtil.post(url, JSONObject.toJSONString(heartbeatParam));
+        log.info("执行器【{}】已发生心跳", getClientName());
+    }
+
+    private String getClientName() {
+        if (StrUtil.isNotBlank(clientName))
+            return clientName;
+
+        // 客户端名称
+        clientName = context.getEnvironment().getProperty("aether.client.name", "");
+        // 如果没指定客户端名称，生成一个uuid
+        if (StrUtil.isBlank(clientName))
+            clientName = UUID.fastUUID().toString();
+
+        return clientName;
     }
 
 }

@@ -22,6 +22,11 @@ public class MemoryExecutorStorage implements ExecutorStorage {
     }
 
     @Override
+    public ExecutorInfo find(String name) {
+        return EXECUTORS.get(name);
+    }
+
+    @Override
     public boolean exist(String name) {
         return EXECUTORS.containsKey(name);
     }
@@ -46,6 +51,11 @@ public class MemoryExecutorStorage implements ExecutorStorage {
     @Override
     public void removeAll() {
         EXECUTORS.clear();
+    }
+
+    @Override
+    public void update(ExecutorInfo executorInfo) {
+        add(executorInfo);
     }
 
 }

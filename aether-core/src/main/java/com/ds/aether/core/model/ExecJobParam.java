@@ -1,7 +1,5 @@
 package com.ds.aether.core.model;
 
-import java.util.Map;
-
 import lombok.Data;
 
 /**
@@ -21,5 +19,15 @@ public class ExecJobParam {
      * 任务参数（json）
      */
     private String params;
+
+    /**
+     * todo 执行类型 0.随机选择执行器执行 1.指定执行器执行
+     */
+    private Integer type;
+
+    /**
+     * 执行器名
+     */
+    private String executorName;
 
 }

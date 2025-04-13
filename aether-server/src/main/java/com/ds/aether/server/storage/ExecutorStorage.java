@@ -19,6 +19,14 @@ public interface ExecutorStorage {
     Map<String, ExecutorInfo> findAll();
 
     /**
+     * 查询执行器信息
+     *
+     * @param name 执行器名
+     * @return
+     */
+    ExecutorInfo find(String name);
+
+    /**
      * 执行器是否存在
      *
      * @param name 执行器名
@@ -46,5 +54,12 @@ public interface ExecutorStorage {
      * 移除所有执行器信息
      */
     void removeAll();
+
+    /**
+     * 更新执行器信息
+     *
+     * @param executorInfo 执行器信息
+     */
+    void update(ExecutorInfo executorInfo);
 
 }
