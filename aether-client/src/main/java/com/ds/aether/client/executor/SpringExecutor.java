@@ -62,7 +62,7 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         String registerExecutorUrl = serverHost + ServerConstant.EXECUTOR_REGISTER_PATH;
         // 发送注册请求
         HttpUtil.post(registerExecutorUrl, JSONObject.toJSONString(registerParam));
-        log.info("执行器【{}】已注册", clientName);
+        log.debug("执行器【{}】已注册", clientName);
     }
 
     @Override
