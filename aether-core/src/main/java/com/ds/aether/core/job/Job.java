@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public @interface Job {
 
     /**
-     * 任务名
+     * 任务名（全局唯一，执行任务标识）
      *
      * @return
      */
