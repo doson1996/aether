@@ -1,23 +1,25 @@
 package com.ds.aether.server.service.impl;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson2.JSONObject;
-import com.ds.aether.core.constant.ClientConstant;
 import com.ds.aether.core.constant.ExecutorStatus;
 import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.HeartbeatParam;
 import com.ds.aether.core.model.Result;
+import com.ds.aether.core.model.ResultCode;
 import com.ds.aether.core.model.client.RegisterParam;
 import com.ds.aether.core.model.server.ExecutorInfo;
+import com.ds.aether.server.client.ClientHelper;
+import com.ds.aether.server.executor.ExecutorSelector;
+import com.ds.aether.server.executor.RandomExecutorSelector;
 import com.ds.aether.server.service.ExecutorService;
 import com.ds.aether.server.storage.ExecutorStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.Map;
 
 /**
  * @author ds
@@ -32,22 +34,18 @@ public class ExecutorServiceImpl implements ExecutorService {
     @Resource
     private ExecutorStorage executorStorage;
 
+    @Resource
+    private ClientHelper clientHelper;
+
     @Override
     public Result<String> execJob(ExecJobParam param) {
         if (param == null || StrUtil.isBlank(param.getJobName())) {
             return Result.fail("参数错误!");
         }
 
-        // 获取所有执行器
-        Map<String, ExecutorInfo> executors = executorStorage.findAll();
-        if (executors.isEmpty()) {
-            return Result.fail("没有可用的执行器!");
-        }
-
-        // todo 随机选择执行器，实现多种算法
-        int index = (int) (System.currentTimeMillis() % executors.size());
-        String[] executorNames = executors.keySet().toArray(new String[0]);
-        ExecutorInfo selectedExecutor = executors.get(executorNames[index]);
+        // 选择一个执行器
+        ExecutorSelector executorSelector = new RandomExecutorSelector(executorStorage);
+        ExecutorInfo selectedExecutor = executorSelector.selectedExecutor(param);
 
         // 将任务发送到指定的执行器
         boolean taskExecuted = sendTaskToExecutor(selectedExecutor, param);
@@ -66,21 +64,8 @@ public class ExecutorServiceImpl implements ExecutorService {
      * @return
      */
     private boolean sendTaskToExecutor(ExecutorInfo executor, ExecJobParam param) {
-        log.info("发送任务【{}】到执行器【{}】", param.getJobName(), executor.getName());
-        try {
-            String resultStr = HttpUtil.post(executor.getHost() + executor.getContextPath() + ClientConstant.CLIENT_EXEC_JOB_PATH, JSONObject.toJSONString(param));
-            if (StrUtil.isNotBlank(resultStr)) {
-                JSONObject resultJson = JSONObject.parseObject(resultStr);
-                if (resultJson.getBoolean("success")) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            log.error("发送任务【{}】到执行器【{}】异常：", param.getJobName(), executor.getName(), e);
-        }
-        return false;
+        return clientHelper.sendTaskToExecutor(executor, param);
     }
-
 
     @Override
     public Result<Map<String, ExecutorInfo>> list() {
@@ -122,12 +107,12 @@ public class ExecutorServiceImpl implements ExecutorService {
     @Override
     public Result<String> heartbeat(HeartbeatParam param) {
         if (param == null || StrUtil.isBlank(param.getName())) {
-            return Result.fail("执行器名称不能为空!");
+            return Result.failWithParameterError("执行器名称不能为空!");
         }
 
         ExecutorInfo executorInfo = executorStorage.find(param.getName());
         if (executorInfo == null) {
-            return Result.fail("执行器不存在!");
+            return Result.fail(ResultCode.EXECUTOR_NOT_EXIST, "执行器不存在!!");
         }
 
         // 更新最后心跳时间

@@ -10,11 +10,21 @@ public final class ResultCode {
     /**
      * 成功
      */
-    public static final int SUCCESS = 200;
+    public static final Integer SUCCESS = 200;
 
     /**
      * 失败
      */
-    public static final int FAIL = 900;
+    public static final Integer FAIL = 900;
+
+    /**
+     * 参数错误
+     */
+    public static final Integer PARAMETER_ERROR = 901;
+
+    /**
+     * 执行器不存在
+     */
+    public static final Integer EXECUTOR_NOT_EXIST = 902;
 
 }

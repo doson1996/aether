@@ -99,6 +99,21 @@ public final class Result<T> implements Serializable {
     }
 
     /**
+     * 参数错误返回
+     *
+     * @param message
+     * @param <T>
+     * @return
+     */
+    public static <T> Result<T> failWithParameterError(String message) {
+        return new Result<>(ResultCode.PARAMETER_ERROR, message, null, false);
+    }
+
+    public static <T> Result<T> fail(Integer code, String message) {
+        return new Result<>(code, message, null, false);
+    }
+
+    /**
      * @param message 消息
      * @param data    数据
      * @return 带指定消息和数据的失败返回
