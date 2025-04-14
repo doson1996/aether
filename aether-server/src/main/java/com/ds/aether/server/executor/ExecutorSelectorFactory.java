@@ -29,13 +29,25 @@ public class ExecutorSelectorFactory {
         if (executorSelector != null)
             return executorSelector;
 
-        if ("poll".equals(type)) {
-            PollExecutorSelector pollExecutorSelector = new PollExecutorSelector(executorStorage);
-            SELECTORS.put(type, pollExecutorSelector);
-            return pollExecutorSelector;
+        switch (type) {
+            // 选择随机选择器
+            case "random":
+                executorSelector = new RandomExecutorSelector(executorStorage);
+                break;
+            // 轮询选择器
+            case "poll":
+                executorSelector = new PollExecutorSelector(executorStorage);
+                break;
+            // 没有找到对应的选择器，使用随机选择器的情况
+            default:
+                // 方便后面put时当key使用 （没有找到对应的选择器，使用随机选择器的情况）
+                type = "random";
+                executorSelector = new RandomExecutorSelector(executorStorage);
+                break;
         }
 
-        return new RandomExecutorSelector(executorStorage);
+        SELECTORS.putIfAbsent(type, executorSelector);
+        return executorSelector;
     }
 
 }
