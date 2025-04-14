@@ -1,10 +1,12 @@
 package com.ds.aether.server.storage;
 
-import com.ds.aether.core.model.server.ExecutorInfo;
-import org.springframework.stereotype.Repository;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import com.ds.aether.core.constant.ExecutorStatus;
+import com.ds.aether.core.model.server.ExecutorInfo;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author ds
@@ -15,6 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MemoryExecutorStorage implements ExecutorStorage {
 
     private static final Map<String, ExecutorInfo> EXECUTORS = new ConcurrentHashMap<>();
+
+    @Override
+    public Map<String, ExecutorInfo> findAvailableExecutors() {
+        Map<String, ExecutorInfo> result = EXECUTORS.entrySet().stream()
+                .filter(entry -> !ExecutorStatus.OFFLINE.equals(entry.getValue().getStatus()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return result;
+    }
 
     @Override
     public Map<String, ExecutorInfo> findAll() {

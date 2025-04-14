@@ -22,9 +22,4 @@ public class ExecutorStatus {
      */
     public static final Integer EXECUTING = 2;
 
-    /**
-     * 执行失败
-     */
-    public static final Integer FAIL = 3;
-
 }

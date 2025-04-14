@@ -12,6 +12,12 @@ import java.util.Map;
 public interface ExecutorStorage {
 
     /**
+     * 查询所有可用的执行器信息
+     * @return
+     */
+    Map<String, ExecutorInfo> findAvailableExecutors();
+
+    /**
      * 查询所有执行器信息
      *
      * @return

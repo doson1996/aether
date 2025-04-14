@@ -1,10 +1,11 @@
 package com.ds.aether.server.storage;
 
-import com.ds.aether.core.model.server.ExecutorInfo;
-import org.springframework.stereotype.Repository;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.ds.aether.core.model.server.ExecutorInfo;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author ds
@@ -13,6 +14,11 @@ import java.util.Map;
  */
 @Repository
 public class MySQLExecutorStorage implements ExecutorStorage {
+
+    @Override
+    public Map<String, ExecutorInfo> findAvailableExecutors() {
+        return Collections.emptyMap();
+    }
 
     @Override
     public Map<String, ExecutorInfo> findAll() {

@@ -47,6 +47,10 @@ public class ExecutorServiceImpl implements ExecutorService {
         ExecutorSelector executorSelector = new RandomExecutorSelector(executorStorage);
         ExecutorInfo selectedExecutor = executorSelector.selectedExecutor(param);
 
+        if (selectedExecutor == null) {
+            return Result.fail("没有可用的执行器!");
+        }
+
         // 将任务发送到指定的执行器
         boolean taskExecuted = sendTaskToExecutor(selectedExecutor, param);
         if (taskExecuted) {
@@ -78,7 +82,7 @@ public class ExecutorServiceImpl implements ExecutorService {
         String host = param.getHost();
 
         if (StrUtil.hasBlank(name, host)) {
-            return Result.fail("参数错误!");
+            return Result.failWithParameterError("参数错误!");
         }
 
         if (executorStorage.exist(name)) {
@@ -92,7 +96,7 @@ public class ExecutorServiceImpl implements ExecutorService {
     @Override
     public Result<String> remove(String name) {
         if (StrUtil.isBlank(name)) {
-            return Result.fail("注册执行器名称不能为空!");
+            return Result.failWithParameterError("注册执行器名称不能为空!");
         }
         executorStorage.remove(name);
         return Result.ok("移除执行器成功!");

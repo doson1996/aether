@@ -18,8 +18,13 @@ public abstract class AbstractExecutorSelector implements ExecutorSelector {
         this.executorStorage = executorStorage;
     }
 
-    protected Map<String, ExecutorInfo> findExecutors() {
-        return executorStorage.findAll();
+    /**
+     * 查找所有可用执行器
+     *
+     * @return
+     */
+    protected Map<String, ExecutorInfo> findAvailableExecutors() {
+        return executorStorage.findAvailableExecutors();
     }
 
 

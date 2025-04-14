@@ -22,8 +22,8 @@ public class RandomExecutorSelector extends AbstractExecutorSelector implements 
 
     @Override
     public ExecutorInfo selectedExecutor(ExecJobParam param) {
-        // 获取所有执行器
-        Map<String, ExecutorInfo> executors = findExecutors();
+        // 获取所有可用执行器
+        Map<String, ExecutorInfo> executors = findAvailableExecutors();
         if (CollectionUtils.isEmpty(executors)) {
             log.warn("没有可用的执行器!");
             return null;
