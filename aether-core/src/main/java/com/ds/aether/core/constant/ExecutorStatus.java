@@ -22,4 +22,9 @@ public class ExecutorStatus {
      */
     public static final Integer EXECUTING = 2;
 
+    /**
+     * 已移除
+     */
+    public static final Integer REMOVED = 9;
+
 }

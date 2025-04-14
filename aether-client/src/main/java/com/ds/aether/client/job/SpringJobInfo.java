@@ -2,6 +2,7 @@ package com.ds.aether.client.job;
 
 import com.ds.aether.core.context.SpringContext;
 import com.ds.aether.core.job.AbstractJob;
+import com.ds.aether.core.job.JobInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

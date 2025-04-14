@@ -29,4 +29,19 @@ public class ServerConstant extends AetherConstant {
      */
     public static final String CLIENT_HEARTBEAT_PATH = SERVER_API + EXECUTOR_PATH + "/heartbeat";
 
+    /**
+     * 服务端任务信息相关api请求路径
+     */
+    public static final String JOB_INFO_PATH = "/job-info";
+
+    /**
+     * 注册任务信息请求路径
+     */
+    public static final String JOB_INFO_REGISTER_PATH = "/register";
+
+    /**
+     * 注册任务信息请求全路径
+     */
+    public static final String JOB_INFO_REGISTER_FULL_PATH = SERVER_API + JOB_INFO_PATH + JOB_INFO_REGISTER_PATH;
+
 }

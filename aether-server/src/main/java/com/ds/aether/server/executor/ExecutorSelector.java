@@ -11,7 +11,7 @@ import com.ds.aether.core.model.server.ExecutorInfo;
 public interface ExecutorSelector {
 
     /**
-     * 选择执行器
+     * 选择执行器 轮询选择
      *
      * @param param
      * @return

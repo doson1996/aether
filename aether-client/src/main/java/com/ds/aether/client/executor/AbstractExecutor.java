@@ -1,9 +1,10 @@
 package com.ds.aether.client.executor;
 
 import com.ds.aether.client.context.AetherContext;
-import com.ds.aether.client.job.JobInfo;
+import com.ds.aether.core.job.JobInfo;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +37,13 @@ public abstract class AbstractExecutor implements Executor {
     }
 
     /**
+     * 获取所有任务信息
+     */
+    protected static Map<String, JobInfo> getAllJobInfo() {
+        return AetherContext.allJobInfo();
+    }
+
+    /**
      * 项目启动之后
      */
     public void start() {
@@ -44,12 +52,20 @@ public abstract class AbstractExecutor implements Executor {
             initJobs();
             // 注册执行器
             registerExecutor();
+            // 发送任务信息给服务端
+            sendJobInfo();
             // 启动心跳任务
             startHeartbeatTask();
+            log.debug("aether客户端启动成功");
         } catch (Exception e) {
             log.error("aether客户端初始化异常：", e);
         }
     }
+
+    /**
+     * 发送任务信息给服务端
+     */
+    protected abstract void sendJobInfo();
 
     /**
      * 发生心跳逻辑

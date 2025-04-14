@@ -15,6 +15,12 @@ public class ClientConstant {
     /**
      * 客户端执行任务请求路径
      */
-    public static final String CLIENT_EXEC_JOB_PATH = CLIENT_PATH + "/exec-job";
+    public static final String CLIENT_EXEC_JOB_PATH = "/exec-job";
+
+    /**
+     * 客户端执行任务请求全路径
+     */
+    public static final String CLIENT_EXEC_JOB_FULL_PATH = CLIENT_PATH + CLIENT_EXEC_JOB_PATH;
+
 
 }

@@ -1,4 +1,4 @@
-package com.ds.aether.client.job;
+package com.ds.aether.core.job;
 
 /**
  * @author ds

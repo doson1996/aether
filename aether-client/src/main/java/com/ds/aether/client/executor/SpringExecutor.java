@@ -6,10 +6,10 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.client.context.AetherContext;
-import com.ds.aether.client.job.JobInfo;
 import com.ds.aether.client.job.SpringJobInfo;
 import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.job.Job;
+import com.ds.aether.core.job.JobInfo;
 import com.ds.aether.core.model.HeartbeatParam;
 import com.ds.aether.core.model.ResultCode;
 import com.ds.aether.core.model.client.RegisterParam;
@@ -19,6 +19,8 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import java.util.Map;
 
 /**
  * @author ds
@@ -54,7 +56,7 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         String clientHost = context.getEnvironment().getProperty("aether.client.host", "");
         // 如果没指定ip，自动获取
         if (StrUtil.isBlank(clientHost)) {
-            clientHost =  NetUtil.getLocalhostStr();
+            clientHost = NetUtil.getLocalhostStr();
         }
         // 客户端请求端口
         String clientPort = context.getEnvironment().getProperty("server.port", "8080");
@@ -129,6 +131,21 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         super.start();
     }
 
+    @Override
+    protected void sendJobInfo() {
+        Map<String, JobInfo> allJobInfo = getAllJobInfo();
+        // 注册任务地址
+        String url = serverHost + ServerConstant.JOB_INFO_REGISTER_FULL_PATH;
+        String resultStr = HttpUtil.post(url, JSONObject.toJSONString(allJobInfo));
+        if (StrUtil.isNotBlank(resultStr)) {
+            JSONObject resultJson = JSONObject.parseObject(resultStr);
+            if (resultJson.getBoolean("success")) {
+                log.info("注册任务信息成功!");
+            } else {
+                log.warn("注册任务信息失败!");
+            }
+        }
+    }
 
     @Override
     protected void sendHeartbeat() {
@@ -142,13 +159,15 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         // 执行器心跳请求地址
         String url = serverHost + ServerConstant.CLIENT_HEARTBEAT_PATH;
         // 发送心跳请求
-        String post = HttpUtil.post(url, JSONObject.toJSONString(heartbeatParam));
-        if (StrUtil.isNotBlank(post)) {
-            JSONObject resultJson = JSONObject.parseObject(post);
-            // 如果返回执行器不存在，重新注册执行器
+        String resultStr = HttpUtil.post(url, JSONObject.toJSONString(heartbeatParam));
+        if (StrUtil.isNotBlank(resultStr)) {
+            JSONObject resultJson = JSONObject.parseObject(resultStr);
+            // 如果返回执行器不存在，重新注册执行器 (不能重新注册，不然移除逻辑就要重写)
             if (ResultCode.EXECUTOR_NOT_EXIST.equals(resultJson.getInteger("code"))) {
-                log.debug("执行器【{}】尝试重新注册", clientName);
-                registerExecutor();
+                log.warn("执行器【{}】不存在，停止发送心跳请求", clientName);
+                currentPauseHeartbeatCount = pauseHeartbeatCount;
+//                log.debug("执行器【{}】尝试重新注册", clientName);
+//                registerExecutor();
             }
 
             // 如果返回参数错误，停止\暂停发生心跳请求
@@ -156,7 +175,6 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
                 log.warn("执行器【{}】心跳请求参数错误，停止发送心跳请求", clientName);
                 currentPauseHeartbeatCount = pauseHeartbeatCount;
             }
-
         }
 
         log.debug("执行器【{}】已发送心跳", getClientName());

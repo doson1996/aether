@@ -1,9 +1,5 @@
 package com.ds.aether.server.service.impl;
 
-import java.util.Map;
-
-import javax.annotation.Resource;
-
 import cn.hutool.core.util.StrUtil;
 import com.ds.aether.core.constant.ExecutorStatus;
 import com.ds.aether.core.model.ExecJobParam;
@@ -14,12 +10,15 @@ import com.ds.aether.core.model.client.RegisterParam;
 import com.ds.aether.core.model.server.ExecutorInfo;
 import com.ds.aether.server.client.ClientHelper;
 import com.ds.aether.server.executor.ExecutorSelector;
-import com.ds.aether.server.executor.RandomExecutorSelector;
+import com.ds.aether.server.executor.ExecutorSelectorFactory;
 import com.ds.aether.server.service.ExecutorService;
 import com.ds.aether.server.storage.ExecutorStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * @author ds
@@ -44,9 +43,9 @@ public class ExecutorServiceImpl implements ExecutorService {
         }
 
         // 选择一个执行器
-        ExecutorSelector executorSelector = new RandomExecutorSelector(executorStorage);
+//        ExecutorSelector executorSelector = new RandomExecutorSelector(executorStorage);
+        ExecutorSelector executorSelector = ExecutorSelectorFactory.create("poll", executorStorage);
         ExecutorInfo selectedExecutor = executorSelector.selectedExecutor(param);
-
         if (selectedExecutor == null) {
             return Result.fail("没有可用的执行器!");
         }
