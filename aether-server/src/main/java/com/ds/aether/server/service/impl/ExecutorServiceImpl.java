@@ -15,6 +15,7 @@ import com.ds.aether.server.service.ExecutorService;
 import com.ds.aether.server.storage.ExecutorStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -36,6 +37,9 @@ public class ExecutorServiceImpl implements ExecutorService {
     @Resource
     private ClientHelper clientHelper;
 
+    @Value("${aether.server.executor.selector.type:poll}")
+    private String executorSelectorType;
+
     @Override
     public Result<String> execJob(ExecJobParam param) {
         if (param == null || StrUtil.isBlank(param.getJobName())) {
@@ -43,8 +47,7 @@ public class ExecutorServiceImpl implements ExecutorService {
         }
 
         // 选择一个执行器
-//        ExecutorSelector executorSelector = new RandomExecutorSelector(executorStorage);
-        ExecutorSelector executorSelector = ExecutorSelectorFactory.create("poll", executorStorage);
+        ExecutorSelector executorSelector = ExecutorSelectorFactory.create(executorSelectorType, executorStorage);
         ExecutorInfo selectedExecutor = executorSelector.selectedExecutor(param);
         if (selectedExecutor == null) {
             return Result.fail("没有可用的执行器!");
