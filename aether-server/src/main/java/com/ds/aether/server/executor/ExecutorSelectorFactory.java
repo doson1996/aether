@@ -8,12 +8,12 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author ds
  * @date 2025/4/14
- * @description todo 执行器选择器工厂
+ * @description 执行器选择器工厂
  */
 public class ExecutorSelectorFactory {
 
     /**
-     * 执行器选择器
+     * 执行器选择器缓存
      */
     private static final Map<String, ExecutorSelector> SELECTORS = new ConcurrentHashMap<>();
 
@@ -25,29 +25,22 @@ public class ExecutorSelectorFactory {
      * @return 执行器选择器
      */
     public static ExecutorSelector create(String type, ExecutorStorage executorStorage) {
-        ExecutorSelector executorSelector = SELECTORS.get(type);
-        if (executorSelector != null)
-            return executorSelector;
-
-        switch (type) {
-            // 选择随机选择器
-            case "random":
-                executorSelector = new RandomExecutorSelector(executorStorage);
-                break;
-            // 轮询选择器
-            case "poll":
-                executorSelector = new PollExecutorSelector(executorStorage);
-                break;
-            // 没有找到对应的选择器，使用随机选择器的情况
-            default:
-                // 方便后面put时当key使用 （没有找到对应的选择器，使用随机选择器的情况）
-                type = "random";
-                executorSelector = new RandomExecutorSelector(executorStorage);
-                break;
+        // 参数校验
+        if (type == null || executorStorage == null) {
+            return null;
         }
-
-        SELECTORS.putIfAbsent(type, executorSelector);
-        return executorSelector;
+        
+        return SELECTORS.computeIfAbsent(type, key -> {
+            switch (key) {
+                case "random":
+                    return new RandomExecutorSelector(executorStorage);
+                case "poll":
+                    return new PollExecutorSelector(executorStorage);
+                default:
+                    // 默认返回随机选择器
+                    return new RandomExecutorSelector(executorStorage);
+            }
+        });
     }
 
 }
