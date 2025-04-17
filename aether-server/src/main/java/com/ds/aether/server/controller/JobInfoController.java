@@ -3,12 +3,14 @@ package com.ds.aether.server.controller;
 import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.model.Result;
+import com.ds.aether.server.service.JobInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
 /**
@@ -20,6 +22,9 @@ import java.util.Map;
 @RestController
 @RequestMapping(ServerConstant.JOB_INFO_PATH)
 public class JobInfoController {
+
+    @Resource
+    private JobInfoService jobInfoService;
 
     @PostMapping(ServerConstant.JOB_INFO_REGISTER_PATH)
     public Result<String> register(@RequestBody Map<String, JSONObject> jobInfoMap) {
