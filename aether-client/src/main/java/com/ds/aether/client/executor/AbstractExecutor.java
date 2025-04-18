@@ -1,13 +1,13 @@
 package com.ds.aether.client.executor;
 
-import com.ds.aether.client.context.AetherContext;
-import com.ds.aether.core.job.JobInfo;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import com.ds.aether.client.context.AetherContext;
+import com.ds.aether.core.job.JobInfo;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ds
@@ -16,6 +16,16 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public abstract class AbstractExecutor implements Executor {
+
+    /**
+     * 心跳间隔，单位秒
+     */
+    private static final int HEARTBEAT_INTERVAL = 5;
+
+    /**
+     * 心跳线程池
+     */
+    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
     /**
      * 注册任务信息
@@ -73,17 +83,10 @@ public abstract class AbstractExecutor implements Executor {
     protected abstract void sendHeartbeat();
 
     /**
-     * 心跳间隔，单位秒
-     */
-    private static final int HEARTBEAT_INTERVAL = 5;
-
-    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
-    /**
      * 启动心跳任务
      */
     private void startHeartbeatTask() {
-        executorService.scheduleAtFixedRate(this::sendHeartbeat, 0, HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(this::sendHeartbeat, HEARTBEAT_INTERVAL, HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
     }
 
 }
