@@ -7,6 +7,6 @@ package com.ds.aether.core.job;
  */
 public interface JobInfo {
 
-    void execute();
+    void execute(String params);
 
 }

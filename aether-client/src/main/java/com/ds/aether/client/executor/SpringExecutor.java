@@ -112,13 +112,13 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
     }
 
     @Override
-    public void executeJob(String jobName) {
+    public void executeJob(String jobName, String params) {
         JobInfo jobInfo = AetherContext.getJobInfo(jobName);
         if (jobInfo == null) {
             log.error("根据任务名【{}】找不到任务信息!", jobName);
             return;
         }
-        jobInfo.execute();
+        jobInfo.execute(params);
     }
 
     @Override

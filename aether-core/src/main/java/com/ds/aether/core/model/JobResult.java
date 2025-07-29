@@ -15,6 +15,8 @@ public class JobResult {
      */
     private boolean success;
 
+    private String message;
+
     public JobResult(boolean success) {
         this.success = success;
     }
@@ -22,4 +24,14 @@ public class JobResult {
     public static JobResult success() {
         return new JobResult(true);
     }
+
+    public static JobResult fail() {
+        return new JobResult(false);
+    }
+    public static JobResult fail(String message) {
+        JobResult jobResult = new JobResult(false);
+        jobResult.setMessage(message);
+        return jobResult;
+    }
+
 }

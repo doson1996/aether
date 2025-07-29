@@ -20,6 +20,6 @@ public interface Executor {
     /**
      * 执行任务
      */
-    void executeJob(String jobName);
+    void executeJob(String jobName, String params);
 
 }

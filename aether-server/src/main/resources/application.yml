@@ -6,7 +6,7 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/aether
+      uri: mongodb://ds:123456@ds.com:27017/ds
 
 aether:
   server:

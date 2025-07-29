@@ -37,8 +37,7 @@ public class ClientController {
             return Result.fail("任务名不能为空!");
         }
 
-        // todo 携带参数执行任务
-        executor.executeJob(jobName);
+        executor.executeJob(jobName, param.getParams());
         return Result.ok("执行任务【" + jobName + "】成功!");
     }
 

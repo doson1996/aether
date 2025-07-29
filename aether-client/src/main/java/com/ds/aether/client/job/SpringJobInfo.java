@@ -20,10 +20,12 @@ public class SpringJobInfo implements JobInfo {
     public String beanName;
 
     @Override
-    public void execute() {
+    public void execute(String params) {
         Object bean = SpringContext.getContext().getBean(beanName);
         if (bean instanceof AbstractJob) {
-            ((AbstractJob) bean).work();
+            AbstractJob job = (AbstractJob) bean;
+            job.setParams(params);
+            job.work();
         }
 
     }

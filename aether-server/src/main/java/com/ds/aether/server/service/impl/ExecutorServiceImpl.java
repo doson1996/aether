@@ -30,7 +30,7 @@ import java.util.Map;
 @Service
 public class ExecutorServiceImpl implements ExecutorService {
 
-    @Qualifier("mongoExecutorStorage")
+    @Qualifier("executorStorageRoute")
     @Resource
     private ExecutorStorage executorStorage;
 

@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @date 2025/4/10
  * @description
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.ds.aether")
 public class AetherApplication {
     public static void main(String[] args) {
         SpringApplication.run(AetherApplication.class, args);
