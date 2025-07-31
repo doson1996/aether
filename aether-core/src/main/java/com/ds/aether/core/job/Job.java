@@ -24,4 +24,11 @@ public @interface Job {
      */
     String name() default "";
 
+    /**
+     * 任务执行表达式
+     *
+     * @return
+     */
+    String cron() default "";
+
 }

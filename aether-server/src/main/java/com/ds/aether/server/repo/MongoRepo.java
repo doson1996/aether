@@ -39,6 +39,46 @@ public class MongoRepo {
     }
 
     /**
+     * 保存或更新文档
+     *
+     * @param table     集合名称
+     * @param condition 查询条件
+     * @param document  要保存或更新的文档
+     * @return 保存或更新后的文档
+     */
+    public Document saveOrUpdate(String table, Bson condition, Document document) {
+        MongoCollection<Document> collection = mongoTemplate.getCollection(table);
+
+        // 检查是否存在匹配的文档
+        Document existing = collection.find(condition).first();
+
+        if (existing != null) {
+            // 如果存在匹配的文档，则更新它
+            // 保留原有的 _id 字段
+            document.put("_id", existing.get("_id"));
+            collection.replaceOne(condition, document);
+            return document;
+        } else {
+            // 如果不存在匹配的文档，则插入新文档
+            collection.insertOne(document);
+            return document;
+        }
+    }
+
+    /**
+     * 保存或更新文档（使用upsert方式）
+     *
+     * @param table     集合名称
+     * @param condition 查询条件
+     * @param update    更新内容
+     * @return 更新结果
+     */
+    public UpdateResult saveOrUpdate(String table, Bson condition, Bson update) {
+        MongoCollection<Document> collection = mongoTemplate.getCollection(table);
+        return collection.updateOne(condition, update, new com.mongodb.client.model.UpdateOptions().upsert(true));
+    }
+
+    /**
      * 批量插入文档
      *
      * @param table     集合名称

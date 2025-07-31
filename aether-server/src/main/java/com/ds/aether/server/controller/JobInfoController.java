@@ -1,5 +1,9 @@
 package com.ds.aether.server.controller;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.model.Result;
@@ -10,9 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-import java.util.Map;
 
 /**
  * @author ds
@@ -30,7 +31,7 @@ public class JobInfoController {
     @PostMapping(ServerConstant.JOB_INFO_REGISTER_PATH)
     public Result<String> register(@RequestBody Map<String, JSONObject> jobInfoMap) {
         log.info("任务信息：{}", jobInfoMap);
-        return Result.ok();
+        return jobInfoService.register(jobInfoMap);
     }
 
     @PostMapping("add")

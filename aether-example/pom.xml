@@ -16,6 +16,12 @@
             <groupId>com.ds.aether</groupId>
             <artifactId>aether-client</artifactId>
             <version>${rversion}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-mongodb</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

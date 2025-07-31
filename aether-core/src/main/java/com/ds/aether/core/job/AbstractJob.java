@@ -40,7 +40,7 @@ public abstract class AbstractJob {
         } catch (Exception e) {
             log.error("任务【{}】执行发生异常：", currentJobName(), e);
             // 异常上报
-            exceptionReport(e);
+            exceptionReport(currentJobName(), e);
         } finally {
             log.info("任务【{}】执行完成", currentJobName());
         }
@@ -51,7 +51,7 @@ public abstract class AbstractJob {
      *
      * @param e
      */
-    private void exceptionReport(Exception e) {
+    private void exceptionReport(String jobName, Exception e) {
 
     }
 

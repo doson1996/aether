@@ -1,5 +1,7 @@
 package com.ds.aether.client.executor;
 
+import java.util.Map;
+
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
@@ -19,8 +21,6 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-
-import java.util.Map;
 
 /**
  * @author ds
@@ -86,8 +86,10 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         for (String beanName : beanNames) {
             Job jobAnnotation = context.findAnnotationOnBean(beanName, Job.class);
             // 如果bean没有@Job注解，跳过处理
-            if (jobAnnotation == null)
+            if (jobAnnotation == null) {
+                log.debug("bean【{}】没有@Job注解,该bean跳过处理", beanName);
                 continue;
+            }
 
             // 任务名
             String jobName = jobAnnotation.name();
@@ -103,8 +105,11 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
                 log.warn("任务【{}】已存在,该bean【{}】跳过处理", jobName, beanName);
             }
 
+            // 任务执行表达式
+            String cron = jobAnnotation.cron();
+
             // 构建任务信息
-            JobInfo jobInfo = new SpringJobInfo(jobName, beanName);
+            JobInfo jobInfo = new SpringJobInfo(jobName, beanName, getClientName(), cron);
             // 注册任务信息
             registerJobInfo(jobName, jobInfo);
         }
@@ -138,11 +143,15 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         String url = serverHost + ServerConstant.JOB_INFO_REGISTER_FULL_PATH;
         String resultStr = HttpUtil.post(url, JSONObject.toJSONString(allJobInfo));
         if (StrUtil.isNotBlank(resultStr)) {
-            JSONObject resultJson = JSONObject.parseObject(resultStr);
-            if (resultJson.getBoolean("success")) {
-                log.info("注册任务信息成功!");
-            } else {
-                log.warn("注册任务信息失败!");
+            try {
+                JSONObject resultJson = JSONObject.parseObject(resultStr);
+                if (resultJson.getBoolean("success")) {
+                    log.info("注册任务信息成功!");
+                } else {
+                    log.warn("注册任务信息失败!");
+                }
+            } catch (Exception e) {
+                log.error("注册任务信息异常：", e);
             }
         }
     }

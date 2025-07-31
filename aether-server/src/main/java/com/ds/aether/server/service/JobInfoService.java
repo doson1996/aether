@@ -1,5 +1,8 @@
 package com.ds.aether.server.service;
 
+import java.util.Map;
+
+import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.server.AddJobParam;
 
@@ -9,6 +12,14 @@ import com.ds.aether.core.model.server.AddJobParam;
  * @description
  */
 public interface JobInfoService {
+
+    /**
+     * 注册任务
+     *
+     * @param jobInfoMap
+     * @return
+     */
+    Result<String> register(Map<String, JSONObject> jobInfoMap);
 
     /**
      * 添加任务

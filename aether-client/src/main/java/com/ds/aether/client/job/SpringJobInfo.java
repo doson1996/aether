@@ -15,9 +15,22 @@ import lombok.Data;
 @AllArgsConstructor
 public class SpringJobInfo implements JobInfo {
 
+    public SpringJobInfo(String jobName, String beanName, String clientName, String cron) {
+        this.jobName = jobName;
+        this.beanName = beanName;
+        this.clientName = clientName;
+        this.cron = cron;
+    }
+
     public String jobName;
 
     public String beanName;
+
+    private String clientName;
+
+    private String methodName;
+
+    private String cron;
 
     @Override
     public void execute(String params) {

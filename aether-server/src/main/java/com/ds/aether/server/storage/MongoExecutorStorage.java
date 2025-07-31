@@ -69,7 +69,8 @@ public class MongoExecutorStorage implements ExecutorStorage {
             return false;
         }
 
-        mongoRepo.insert(TABLE, Document.parse(JSON.toJSONString(executorInfo)));
+        Bson condition = Filters.eq("host", executorInfo.getHost());
+        mongoRepo.saveOrUpdate(TABLE, condition, Document.parse(JSON.toJSONString(executorInfo)));
         return true;
     }
 
