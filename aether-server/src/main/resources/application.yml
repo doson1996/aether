@@ -13,3 +13,13 @@ aether:
     executor:
       selector:
         type: poll
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show:
+        details: always
