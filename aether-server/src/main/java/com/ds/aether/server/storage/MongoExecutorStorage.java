@@ -44,6 +44,8 @@ public class MongoExecutorStorage implements ExecutorStorage {
         List<Document> list = mongoRepo.list(TABLE, null, null, null, null, true);
         for (Document document : list) {
             ExecutorInfo executorInfo = JSON.parseObject(document.toJson(), ExecutorInfo.class);
+            Long lastHeartbeat = document.getLong("lastHeartbeat");
+            executorInfo.setLastHeartbeat(lastHeartbeat);
             result.put(executorInfo.getName(), executorInfo);
         }
         return result;
@@ -87,7 +89,7 @@ public class MongoExecutorStorage implements ExecutorStorage {
 
     @Override
     public void update(ExecutorInfo executorInfo) {
-        mongoRepo.updateMany(TABLE, new Document("name", executorInfo.getName()), Document.parse(JSON.toJSONString(executorInfo)));
+        mongoRepo.updateMany(TABLE, new Document("name", executorInfo.getName()), new Document("$set", Document.parse(JSON.toJSONString(executorInfo))));
     }
 
 }

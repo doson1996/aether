@@ -1,9 +1,9 @@
 package com.ds.aether.server.executor;
 
-import com.ds.aether.server.storage.ExecutorStorage;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.ds.aether.server.storage.ExecutorStorage;
 
 /**
  * @author ds
@@ -29,13 +29,15 @@ public class ExecutorSelectorFactory {
         if (type == null || executorStorage == null) {
             return null;
         }
-        
+
         return SELECTORS.computeIfAbsent(type, key -> {
             switch (key) {
                 case "random":
                     return new RandomExecutorSelector(executorStorage);
                 case "poll":
                     return new PollExecutorSelector(executorStorage);
+                case "weight":
+                    return new WeightExecutorSelector(executorStorage);
                 default:
                     // 默认返回随机选择器
                     return new RandomExecutorSelector(executorStorage);

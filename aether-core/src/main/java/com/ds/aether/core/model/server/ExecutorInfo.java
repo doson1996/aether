@@ -1,5 +1,7 @@
 package com.ds.aether.core.model.server;
 
+import com.alibaba.fastjson2.annotation.JSONField;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class ExecutorInfo {
 
     public ExecutorInfo(String name, String host, String contextPath) {
@@ -51,11 +54,17 @@ public class ExecutorInfo {
     /**
      * 最后一次心跳时间
      */
+    @JSONField(name = "lastHeartbeat")
     private Long lastHeartbeat;
 
     /**
      * 执行器状态 {@link com.ds.aether.core.constant.ExecutorStatus}
      */
     private Integer status;
+
+    /**
+     * 执行器权重
+     */
+    private Integer weight;
 
 }

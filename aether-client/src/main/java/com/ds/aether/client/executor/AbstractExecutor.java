@@ -63,7 +63,7 @@ public abstract class AbstractExecutor implements Executor {
             // 注册执行器
             registerExecutor();
             // 发送任务信息给服务端
-            sendJobInfo();
+//            sendJobInfo();
             // 启动心跳任务
             startHeartbeatTask();
             log.debug("aether客户端启动成功");
