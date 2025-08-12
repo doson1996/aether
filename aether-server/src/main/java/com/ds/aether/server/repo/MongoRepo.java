@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.ds.aether.core.common.Page;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.result.DeleteResult;
@@ -24,6 +25,67 @@ public class MongoRepo {
 
     @Resource
     private MongoTemplate mongoTemplate;
+
+    /**
+     * 分页查询文档
+     *
+     * @param table      集合名称
+     * @param condition  查询条件
+     * @param sort       排序条件
+     * @param projection 投影条件
+     * @param page       页码（从1开始）
+     * @param size       每页数量
+     * @param removeId   是否排除_id字段
+     * @return 分页结果包含文档列表和总数
+     */
+    public Page page(String table, Bson condition, Bson sort, Bson projection,
+                     int page, int size, Boolean removeId) {
+        MongoCollection<Document> collection = mongoTemplate.getCollection(table);
+
+        // 计算跳过的文档数量
+        int skip = (page - 1) * size;
+
+        // 构建查询
+        com.mongodb.client.FindIterable<Document> findIterable;
+        if (condition != null) {
+            findIterable = collection.find(condition);
+        } else {
+            findIterable = collection.find();
+        }
+
+        // 应用排序
+        if (sort != null) {
+            findIterable.sort(sort);
+        }
+
+        // 应用跳过和限制
+        findIterable.skip(skip).limit(size);
+
+        // 应用投影
+        Bson finalProjection = projection;
+        if (removeId != null && removeId) {
+            if (projection != null) {
+                finalProjection = Projections.fields(projection, Projections.excludeId());
+            } else {
+                finalProjection = Projections.excludeId();
+            }
+        }
+
+        if (finalProjection != null) {
+            findIterable.projection(finalProjection);
+        }
+
+        // 收集结果
+        List<Document> data = new ArrayList<>();
+        for (Document document : findIterable) {
+            data.add(document);
+        }
+
+        // 计算总数
+        long total = collection.countDocuments(condition);
+
+        return new Page(total, data, page, size);
+    }
 
     /**
      * 插入单个文档
