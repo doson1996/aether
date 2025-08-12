@@ -14,28 +14,22 @@
 <div id="app">
     <div class="container-fluid">
         <!-- 导航栏 -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="/api/page/">
-                    <i class="bi bi-clock-history"></i> Aether 任务调度系统
-                </a>
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="/api/page/">首页</a>
-                    <a class="nav-link active" href="/api/page/add-job">添加任务</a>
-                </div>
-            </div>
-        </nav>
+        <div th:replace="~{fragments :: navbar(currentPage='add-job')}"></div>
 
         <div class="container mt-5">
             <h2>添加新任务</h2>
             <el-card>
                 <el-form :model="jobForm" :rules="rules" ref="jobFormRef" label-width="120px">
-                    <el-form-item label="应用名" prop="jobName">
+                    <el-form-item label="应用名" prop="appName">
                         <el-input v-model="jobForm.appName" placeholder="请输入应用名"></el-input>
                     </el-form-item>
 
                     <el-form-item label="任务名称" prop="jobName">
                         <el-input v-model="jobForm.jobName" placeholder="请输入任务名称"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="任务参数" prop="jobParams">
+                        <el-input v-model="jobForm.jobParams" placeholder="请输入任务参数"></el-input>
                     </el-form-item>
 
                     <el-form-item label="任务描述" prop="jobDescription">
@@ -68,10 +62,6 @@
                     <el-form-item  v-if="jobForm.jobType === '5'"  label="执行类名" prop="className">
                         <el-input v-model="jobForm.className" placeholder="请输入执行类名"></el-input>
                     </el-form-item>
-
-
-
-
 
                     <el-form-item>
                         <el-button type="primary" @click="submitForm" :loading="submitLoading">添加任务</el-button>
@@ -122,6 +112,7 @@
             const jobForm = reactive({
                 appName: '',
                 jobName: '',
+                jobParams: '',
                 jobDescription: '',
                 jobType: '',
                 className: '',

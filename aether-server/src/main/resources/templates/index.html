@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Aether 任务调度系统</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -14,17 +15,7 @@
 <div id="app">
     <div class="container-fluid">
         <!-- 导航栏 -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="/api/page/">
-                    <i class="bi bi-clock-history"></i> Aether 任务调度系统
-                </a>
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link active" href="/api/page/">首页</a>
-                    <a class="nav-link" href="/api/page/add-job">添加任务</a>
-                </div>
-            </div>
-        </nav>
+        <div th:replace="~{fragments :: navbar(currentPage='index')}"></div>
 
         <!-- 主要内容 -->
         <div class="container mt-4">
@@ -32,12 +23,12 @@
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2><i class="bi bi-list-task"></i> 任务列表</h2>
-                        <el-button type="primary" @click="loadJobs" :icon="Refresh" circle></el-button>
+                        <el-button type="primary" @click="loadJobs" :icon="Refresh" circle>刷新</el-button>
                     </div>
 
                     <!-- 任务统计卡片 -->
                     <div class="row mb-4">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <el-card class="text-white bg-primary">
                                 <div class="card-body">
                                     <h5 class="card-title">总任务数</h5>
@@ -45,7 +36,15 @@
                                 </div>
                             </el-card>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <el-card class="text-white bg-secondary">
+                                <div class="card-body">
+                                    <h5 class="card-title">未执行</h5>
+                                    <h2>{{ statistics.notExecuted }}</h2>
+                                </div>
+                            </el-card>
+                        </div>
+                        <div class="col-md-2">
                             <el-card class="text-white bg-success">
                                 <div class="card-body">
                                     <h5 class="card-title">运行中</h5>
@@ -53,15 +52,23 @@
                                 </div>
                             </el-card>
                         </div>
-                        <div class="col-md-3">
-                            <el-card class="text-white bg-warning">
+                        <div class="col-md-2">
+                            <el-card class="text-white bg-info">
                                 <div class="card-body">
-                                    <h5 class="card-title">已暂停</h5>
-                                    <h2>{{ statistics.paused }}</h2>
+                                    <h5 class="card-title">已完成</h5>
+                                    <h2>{{ statistics.completed }}</h2>
                                 </div>
                             </el-card>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <el-card class="text-white bg-warning">
+                                <div class="card-body">
+                                    <h5 class="card-title">已取消</h5>
+                                    <h2>{{ statistics.cancel }}</h2>
+                                </div>
+                            </el-card>
+                        </div>
+                        <div class="col-md-2">
                             <el-card class="text-white bg-danger">
                                 <div class="card-body">
                                     <h5 class="card-title">异常任务</h5>
@@ -74,10 +81,13 @@
                     <!-- 任务表格 -->
                     <el-card>
                         <el-table :data="jobs" style="width: 100%" v-loading="loading">
-                            <el-table-column prop="jobName" label="任务名称" width="180"></el-table-column>
-                            <el-table-column prop="jobDescription" label="描述" width="200"></el-table-column>
-                            <el-table-column prop="className" label="执行类" width="200"></el-table-column>
-                            <el-table-column prop="cronExpression" label="Cron表达式" width="150"></el-table-column>
+                            <el-table-column prop="appName" label="应用名" width="150"></el-table-column>
+                            <el-table-column prop="jobName" label="任务名称" width="150"></el-table-column>
+                            <el-table-column prop="jobParams" label="任务参数" width="150"></el-table-column>
+                            <el-table-column prop="jobDescription" label="任务描述" width="100"></el-table-column>
+                            <el-table-column prop="jobType" label="任务类型" width="150"></el-table-column>
+                            <el-table-column prop="className" label="执行类" width="150"></el-table-column>
+                            <el-table-column prop="cronExpression" label="Cron表达式" width="100"></el-table-column>
                             <el-table-column label="状态" width="100">
                                 <template #default="scope">
                                     <el-tag :type="getJobStatusType(scope.row.status)">
@@ -85,7 +95,7 @@
                                     </el-tag>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="操作" width="150">
+                            <el-table-column label="操作" width="200">
                                 <template #default="scope">
                                     <el-button-group>
                                         <el-button
@@ -94,19 +104,22 @@
                                                 :icon="Delete"
                                                 @click="operateJob(scope.row.jobName, 'start')"
                                                 :disabled="scope.row.status === 1">
+                                            执行
                                         </el-button>
                                         <el-button
                                                 size="small"
                                                 type="warning"
                                                 :icon="Delete"
-                                                @click="operateJob(scope.row.jobName, 'pause')"
+                                                @click="operateJob(scope.row.jobName, 'cancel')"
                                                 :disabled="scope.row.status === 0">
+                                            取消
                                         </el-button>
                                         <el-button
                                                 size="small"
                                                 type="danger"
                                                 :icon="Delete"
                                                 @click="operateJob(scope.row.jobName, 'delete')">
+                                            删除
                                         </el-button>
                                     </el-button-group>
                                 </template>
@@ -153,9 +166,9 @@
 </div>
 
 <script th:inline="javascript">
-    const { createApp, ref, onMounted, reactive } = Vue;
-    const { ElMessage, ElMessageBox } = ElementPlus;
-    const { Delete, Refresh, VideoPlay, VideoPause } = ElementPlus;
+    const {createApp, ref, onMounted, reactive} = Vue;
+    const {ElMessage, ElMessageBox} = ElementPlus;
+    const {Delete, Refresh, VideoPlay, VideoPause} = ElementPlus;
 
     // API基础URL配置
     const API_BASE_URL = /*[[@{/}]]*/ 'http://localhost:8081';
@@ -167,9 +180,11 @@
             const messages = ref([]);
             const statistics = ref({
                 total: 0,
+                notExecuted: 0,
                 running: 0,
-                paused: 0,
-                error: 0
+                cancel: 0,
+                error: 0,
+                completed: 0
             });
 
             // 分页信息
@@ -207,26 +222,42 @@
             const updateStatistics = (jobsData) => {
                 statistics.value.total = pagination.total;
                 // 实际项目中应该从后端获取准确统计信息
+                statistics.value.notExecuted = jobsData.filter(job => job.status === 0).length;
                 statistics.value.running = jobsData.filter(job => job.status === 1).length;
-                statistics.value.paused = jobsData.filter(job => job.status === 0).length;
-                statistics.value.error = 0; // 可根据实际需求调整
+                statistics.value.completed = jobsData.filter(job => job.status === 2).length;
+                statistics.value.error = jobsData.filter(job => job.status === 3).length;
+                statistics.value.cancel = jobsData.filter(job => job.status === 4).length;
             };
 
             // 获取任务状态对应的标签类型
             const getJobStatusType = (status) => {
-                switch(status) {
-                    case 1: return 'success';  // 运行中
-                    case 0: return 'warning';  // 已暂停
-                    default: return 'info';
+                switch (status) {
+                    case 1:
+                        return 'success';  // 运行中
+                    case 0:
+                        return 'warning';  // 已暂停
+                    case 3:
+                        return 'error';
+                    default:
+                        return 'info';
                 }
             };
 
             // 获取任务状态文本
             const getJobStatusText = (status) => {
-                switch(status) {
-                    case 1: return '运行中';
-                    case 0: return '已暂停';
-                    default: return '未知';
+                switch (status) {
+                    case 0:
+                        return '未执行';
+                    case 1:
+                        return '运行中';
+                    case 2:
+                        return '运行完成';
+                    case 3:
+                        return '执行异常';
+                    case 4:
+                        return '已取消';
+                    default:
+                        return '未知';
                 }
             };
 
@@ -247,22 +278,22 @@
                     }
                 }
 
-                const url = `${API_BASE_URL}/api/job-info/${operation}/${jobName}`;
+                const url = `${API_BASE_URL}job-info/${operation}/${jobName}`;
                 const method = operation === 'delete' ? 'delete' : 'post';
 
                 try {
-                    const response = await axios({ method, url });
+                    const response = await axios({method, url});
                     if (response.data.success) {
                         const operationText = {
                             'start': '启动',
-                            'pause': '暂停',
+                            'cancel': '取消',
                             'delete': '删除'
                         }[operation];
 
                         showMessage(`任务${operationText}成功！`, 'success');
                         loadJobs(); // 重新加载任务列表
                     } else {
-                        showMessage(`任务${operation === 'start' ? '启动' : operation === 'pause' ? '暂停' : '删除'}失败: ${response.data.message}`, 'error');
+                        showMessage(`任务${operation === 'start' ? '启动' : operation === 'pause' ? '取消' : '删除'}失败: ${response.data.message}`, 'error');
                     }
                 } catch (error) {
                     showMessage(`请求失败: ${error.message}`, 'error');
