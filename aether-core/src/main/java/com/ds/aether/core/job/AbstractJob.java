@@ -1,5 +1,8 @@
 package com.ds.aether.core.job;
 
+import javax.annotation.Resource;
+
+import com.ds.aether.core.client.ServerClient;
 import com.ds.aether.core.model.JobResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +24,9 @@ public abstract class AbstractJob {
      */
     private JobResult jobResult;
 
+    @Resource
+    private ServerClient serverClient;
+
     /**
      * 执行任务逻辑，留给子类覆写
      *
@@ -34,9 +40,12 @@ public abstract class AbstractJob {
      */
     public void work() {
         try {
+            // 任务运行中上报
+            serverClient.reportState(currentJobName(), null, JobState.RUNNING, "运行开始", null);
             JobResult result = execute();
             // 设置任务执行结果
             setJobResult(result);
+            serverClient.reportState(currentJobName(), null, JobState.COMPLETED, "运行结束", jobResult);
         } catch (Exception e) {
             log.error("任务【{}】执行发生异常：", currentJobName(), e);
             // 异常上报
@@ -52,7 +61,7 @@ public abstract class AbstractJob {
      * @param e
      */
     private void exceptionReport(String jobName, Exception e) {
-
+        serverClient.reportState(jobName, null, JobState.ERROR, e.getMessage(), null);
     }
 
     /**

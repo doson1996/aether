@@ -1,5 +1,7 @@
 package com.ds.aether.client.executor;
 
+import com.ds.aether.core.model.Result;
+
 /**
  * @author ds
  * @date 2025/4/10
@@ -20,6 +22,6 @@ public interface Executor {
     /**
      * 执行任务
      */
-    void executeJob(String jobName, String params);
+    Result<String> executeJob(String jobName, String params);
 
 }

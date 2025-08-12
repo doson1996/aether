@@ -8,6 +8,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.core.common.Page;
+import com.ds.aether.core.model.ReportStateParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.server.AddJobParam;
 import com.ds.aether.server.model.dto.BasePageParam;
@@ -59,12 +60,38 @@ public class JobInfoServiceImpl implements JobInfoService {
         if (StrUtil.isNotBlank(cronExpression)) {
             SchedulerContext.schedule(cronExpression, jobName);
         }
-        return Result.ok();
+        return Result.ok("添加成功!");
     }
 
     @Override
     public Result<Page> page(BasePageParam param) {
         return Result.okData(mongoRepo.page(TABLE_NAME, null, null, null, param.getPageNum(), param.getPageSize(), true));
+    }
+
+    @Override
+    public Result<String> delete(String jobName) {
+        Bson condition = Filters.and(Filters.eq("jobName", jobName));
+        mongoRepo.deleteMany(TABLE_NAME, condition);
+        return Result.ok("删除成功!");
+    }
+
+    @Override
+    public Document findOne(String jobName) {
+        Bson condition = Filters.and(Filters.eq("jobName", jobName));
+        return mongoRepo.findOne(TABLE_NAME, condition);
+    }
+
+    @Override
+    public Result<String> reportState(ReportStateParam param) {
+        String jobName = param.getJobName();
+        Integer status = param.getStatus();
+        Document updateDoc = new Document();
+        updateDoc.put("status", status);
+        mongoRepo.updateOne(TABLE_NAME, Filters.and(Filters.eq("jobName", jobName)), new Document("$set", updateDoc));
+
+        // 任务上报记录
+        mongoRepo.insert("job_exec_log", Document.parse(JSON.toJSONString(param)));
+        return Result.ok("OK");
     }
 
 }

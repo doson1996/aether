@@ -40,6 +40,5 @@ public class SpringJobInfo implements JobInfo {
             job.setParams(params);
             job.work();
         }
-
     }
 }

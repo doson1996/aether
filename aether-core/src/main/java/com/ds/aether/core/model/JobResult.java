@@ -17,6 +17,9 @@ public class JobResult {
 
     private String message;
 
+    public JobResult() {
+    }
+
     public JobResult(boolean success) {
         this.success = success;
     }

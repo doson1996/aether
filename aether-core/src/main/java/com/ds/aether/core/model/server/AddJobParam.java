@@ -21,6 +21,11 @@ public class AddJobParam {
     private String jobName;
 
     /**
+     * 任务参数
+     */
+    private String jobParams;
+
+    /**
      * 任务描述
      */
     private String jobDescription;

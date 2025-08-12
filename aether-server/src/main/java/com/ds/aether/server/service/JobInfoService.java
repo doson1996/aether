@@ -4,10 +4,11 @@ import java.util.Map;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.core.common.Page;
+import com.ds.aether.core.model.ReportStateParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.server.AddJobParam;
 import com.ds.aether.server.model.dto.BasePageParam;
-import com.ds.aether.server.model.vo.JobInfoVo;
+import org.bson.Document;
 
 /**
  * @author ds
@@ -39,5 +40,29 @@ public interface JobInfoService {
      * @return
      */
     Result<Page> page(BasePageParam param);
+
+    /**
+     * 删除任务
+     *
+     * @param jobName
+     * @return
+     */
+    Result<String> delete(String jobName);
+
+    /**
+     * 查询任务
+     *
+     * @param jobName
+     * @return
+     */
+    Document findOne(String jobName);
+
+    /**
+     * 上报任务状态
+     *
+     * @param param
+     * @return
+     */
+    Result<String> reportState(ReportStateParam param);
 
 }

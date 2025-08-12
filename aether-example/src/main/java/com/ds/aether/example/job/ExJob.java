@@ -8,22 +8,17 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author ds
  * @date 2025/4/10
- * @description cron示例任务
- * 使用示例
- * 1.添加@Job注解，指定任务名称
- * 2.继承AbstractJob，实现execute方法，执行任务逻辑
+ * @description 执行异常任务
  */
 @Slf4j
-//@Job(name = "cronJob", cron = "*/5 * * * * *")
-@Job(name = "cronJob")
-public class CronJob extends AbstractJob {
+@Job(name = "exJob")
+public class ExJob extends AbstractJob {
 
     @Override
     public JobResult execute() throws Exception {
         String params = getParams();
         log.info("执行任务, params = {}", params);
-        Thread.sleep(5000);
-        return JobResult.success();
+        throw new RuntimeException("执行异常");
     }
 
 }

@@ -37,8 +37,7 @@ public class ClientController {
             return Result.fail("任务名不能为空!");
         }
 
-        executor.executeJob(jobName, param.getParams());
-        return Result.ok("执行任务【" + jobName + "】成功!");
+        return executor.executeJob(jobName, param.getParams());
     }
 
 }

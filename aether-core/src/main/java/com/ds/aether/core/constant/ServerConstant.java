@@ -44,4 +44,14 @@ public class ServerConstant extends AetherConstant {
      */
     public static final String JOB_INFO_REGISTER_FULL_PATH = SERVER_API + JOB_INFO_PATH + JOB_INFO_REGISTER_PATH;
 
+    /**
+     * 上报任务状态请求路径
+     */
+    public static final String JOB_INFO_REPORT_STATE_PATH = "/report-state";
+
+    /**
+     * 上报任务状态请求全路径
+     */
+    public static final String JOB_INFO_REPORT_STATE_FULL_PATH = SERVER_API + JOB_INFO_PATH + JOB_INFO_REPORT_STATE_PATH;
+
 }

@@ -2,6 +2,8 @@ package com.ds.aether.client.executor;
 
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
@@ -9,18 +11,19 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.client.context.AetherContext;
 import com.ds.aether.client.job.SpringJobInfo;
+import com.ds.aether.core.client.ServerClient;
 import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.job.Job;
 import com.ds.aether.core.job.JobInfo;
-import com.ds.aether.core.model.HeartbeatParam;
+import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.ResultCode;
-import com.ds.aether.core.model.client.RegisterParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * @author ds
@@ -35,6 +38,12 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
 
     @Value("${aether.pause.heartbeat.count:12}")
     private Integer pauseHeartbeatCount;
+
+    @Resource
+    private ServerClient serverClient;
+
+    @Resource
+    private ThreadPoolTaskExecutor taskExecutor;
 
     private ApplicationContext context;
 
@@ -63,16 +72,8 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         // 客户端请求上下文路径
         String contextPath = context.getEnvironment().getProperty("server.servlet.context-path", "");
 
-        // 构建注册执行器参数
-        RegisterParam registerParam = new RegisterParam();
-        registerParam.setName(clientName);
-        registerParam.setHost(clientHost + ":" + clientPort);
-        registerParam.setContextPath(contextPath);
-
-        // 注册执行器请求地址
-        String registerExecutorUrl = serverHost + ServerConstant.EXECUTOR_REGISTER_PATH;
         // 发送注册请求
-        HttpUtil.post(registerExecutorUrl, JSONObject.toJSONString(registerParam));
+        serverClient.registerExecutor(clientName, clientHost, clientPort, contextPath);
         log.debug("执行器【{}】已注册", clientName);
     }
 
@@ -117,13 +118,18 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
     }
 
     @Override
-    public void executeJob(String jobName, String params) {
+    public Result<String> executeJob(String jobName, String params) {
         JobInfo jobInfo = AetherContext.getJobInfo(jobName);
         if (jobInfo == null) {
             log.error("根据任务名【{}】找不到任务信息!", jobName);
-            return;
+            return Result.fail("任务【" + jobName + "】不存在!");
         }
-        jobInfo.execute(params);
+        // 异步执行任务
+        taskExecutor.execute(() -> {
+            jobInfo.execute(params);
+        });
+
+        return Result.ok("任务【" + jobName + "】分配成功!");
     }
 
     @Override
@@ -160,29 +166,29 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
     protected void sendHeartbeat() {
         if (currentPauseHeartbeatCount > 0) {
             // 停止发生心跳就注释，暂停发送心跳就放开
-            // currentPauseHeartbeatCount--;
+            currentPauseHeartbeatCount--;
             return;
         }
-        HeartbeatParam heartbeatParam = new HeartbeatParam();
-        heartbeatParam.setName(getClientName());
-        // 执行器心跳请求地址
-        String url = serverHost + ServerConstant.CLIENT_HEARTBEAT_PATH;
         // 发送心跳请求
-        String resultStr = HttpUtil.post(url, JSONObject.toJSONString(heartbeatParam));
+        String resultStr = serverClient.sendHeartbeat(getClientName());
         if (StrUtil.isNotBlank(resultStr)) {
-            JSONObject resultJson = JSONObject.parseObject(resultStr);
-            // 如果返回执行器不存在，重新注册执行器 (不能重新注册，不然移除逻辑就要重写)
-            if (ResultCode.EXECUTOR_NOT_EXIST.equals(resultJson.getInteger("code"))) {
-                log.warn("执行器【{}】不存在，停止发送心跳请求", clientName);
-                currentPauseHeartbeatCount = pauseHeartbeatCount;
-//                log.debug("执行器【{}】尝试重新注册", clientName);
-//                registerExecutor();
-            }
+            try {
+                JSONObject resultJson = JSONObject.parseObject(resultStr);
+                // 如果返回执行器不存在，重新注册执行器 (不能重新注册，不然移除逻辑就要重写)
+                if (ResultCode.EXECUTOR_NOT_EXIST.equals(resultJson.getInteger("code"))) {
+                    log.warn("执行器【{}】不存在，停止发送心跳请求", clientName);
+                    currentPauseHeartbeatCount = pauseHeartbeatCount;
+                    log.debug("执行器【{}】尝试重新注册", clientName);
+                    registerExecutor();
+                }
 
-            // 如果返回参数错误，停止\暂停发生心跳请求
-            if (ResultCode.PARAMETER_ERROR.equals(resultJson.getInteger("code"))) {
-                log.warn("执行器【{}】心跳请求参数错误，停止发送心跳请求", clientName);
-                currentPauseHeartbeatCount = pauseHeartbeatCount;
+                // 如果返回参数错误，停止\暂停发生心跳请求
+                if (ResultCode.PARAMETER_ERROR.equals(resultJson.getInteger("code"))) {
+                    log.warn("执行器【{}】心跳请求参数错误，停止发送心跳请求", clientName);
+                    currentPauseHeartbeatCount = pauseHeartbeatCount;
+                }
+            } catch (Exception ex) {
+                log.error("发送心跳请求异常：", ex);
             }
         }
 
