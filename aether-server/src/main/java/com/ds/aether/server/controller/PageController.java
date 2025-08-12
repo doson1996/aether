@@ -1,0 +1,29 @@
+package com.ds.aether.server.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * @author ds
+ * @date 2025/8/11
+ * @description
+ */
+@Controller
+@RequestMapping("/page")
+public class PageController {
+
+    @GetMapping("/")
+    public String indexPage(Model model) {
+        model.addAttribute("title", "主页");
+        return "index";
+    }
+
+    @GetMapping("/add-job")
+    public String addPage(Model model) {
+        model.addAttribute("title", "添加任务");
+        return "add-job";
+    }
+
+}

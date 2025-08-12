@@ -7,6 +7,10 @@ spring:
   data:
     mongodb:
       uri: mongodb://ds:123456@ds.com:27017/ds
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
 
 aether:
   server:

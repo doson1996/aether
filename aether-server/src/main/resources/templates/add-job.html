@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>添加任务</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="container-fluid">
+        <!-- 导航栏 -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/api/page/">
+                    <i class="bi bi-clock-history"></i> Aether 任务调度系统
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/api/page/">首页</a>
+                    <a class="nav-link active" href="/api/page/add-job">添加任务</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container mt-5">
+            <h2>添加新任务</h2>
+            <el-card>
+                <el-form :model="jobForm" :rules="rules" ref="jobFormRef" label-width="120px">
+                    <el-form-item label="任务名称" prop="jobName">
+                        <el-input v-model="jobForm.jobName" placeholder="请输入任务名称"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="任务描述" prop="jobDescription">
+                        <el-input
+                                v-model="jobForm.jobDescription"
+                                type="textarea"
+                                placeholder="请输入任务描述">
+                        </el-input>
+                    </el-form-item>
+
+                    <el-form-item label="执行类名" prop="className">
+                        <el-input v-model="jobForm.className" placeholder="请输入执行类名"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="Cron表达式" prop="cronExpression">
+                        <el-input v-model="jobForm.cronExpression" placeholder="请输入Cron表达式"></el-input>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button type="primary" @click="submitForm" :loading="submitLoading">添加任务</el-button>
+                        <el-button @click="resetForm">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-card>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const { createApp, reactive, ref } = Vue;
+    const { ElMessage } = ElementPlus;
+
+    // API基础URL配置
+    const API_BASE_URL = /*[[@{/}]]*/ 'http://localhost:8081/';
+
+    createApp({
+        setup() {
+            const jobFormRef = ref();
+            const submitLoading = ref(false);
+
+            const jobForm = reactive({
+                jobName: '',
+                jobDescription: '',
+                className: '',
+                cronExpression: ''
+            });
+
+            const rules = {
+                jobName: [
+                    { required: true, message: '请输入任务名称', trigger: 'blur' }
+                ],
+                className: [
+                    { required: true, message: '请输入执行类名', trigger: 'blur' }
+                ],
+                cronExpression: [
+                    { required: true, message: '请输入Cron表达式', trigger: 'blur' }
+                ]
+            };
+
+            // 提交表单
+            const submitForm = async () => {
+                jobFormRef.value.validate(async (valid) => {
+                    if (valid) {
+                        submitLoading.value = true;
+                        try {
+                            const response = await axios.post(
+                                `${API_BASE_URL}/job-info/add`,
+                                jobForm
+                            );
+
+                            if (response.data.success) {
+                                ElMessage.success('任务添加成功！');
+                                resetForm();
+                            } else {
+                                ElMessage.error('任务添加失败: ' + response.data.message);
+                            }
+                        } catch (error) {
+                            ElMessage.error('请求失败: ' + error.message);
+                        } finally {
+                            submitLoading.value = false;
+                        }
+                    }
+                });
+            };
+
+            // 重置表单
+            const resetForm = () => {
+                jobFormRef.value.resetFields();
+            };
+
+            return {
+                jobFormRef,
+                submitLoading,
+                jobForm,
+                rules,
+                submitForm,
+                resetForm
+            };
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

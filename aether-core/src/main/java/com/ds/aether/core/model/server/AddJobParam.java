@@ -21,8 +21,13 @@ public class AddJobParam {
     private String jobName;
 
     /**
+     * 任务描述
+     */
+    private String jobDescription;
+
+    /**
      * cron表达式
      */
-    private String cron;
+    private String cronExpression;
 
 }
