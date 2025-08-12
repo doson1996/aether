@@ -11,7 +11,6 @@ import com.ds.aether.core.common.Page;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.server.AddJobParam;
 import com.ds.aether.server.model.dto.BasePageParam;
-import com.ds.aether.server.model.vo.JobInfoVo;
 import com.ds.aether.server.repo.MongoRepo;
 import com.ds.aether.server.scheduler.SchedulerContext;
 import com.ds.aether.server.service.JobInfoService;
@@ -53,6 +52,7 @@ public class JobInfoServiceImpl implements JobInfoService {
         String jobName = param.getJobName();
         String appName = param.getAppName();
         Bson condition = Filters.and(Filters.eq("jobName", jobName), Filters.eq("appName", appName));
+        param.setStatus(2);
         mongoRepo.saveOrUpdate(TABLE_NAME, condition, Document.parse(JSON.toJSONString(param)));
 
         String cronExpression = param.getCronExpression();
@@ -64,7 +64,7 @@ public class JobInfoServiceImpl implements JobInfoService {
 
     @Override
     public Result<Page> page(BasePageParam param) {
-        return Result.okData(mongoRepo.page(TABLE_NAME, null, null, null, param.getPageSize(), param.getPageNum(), true));
+        return Result.okData(mongoRepo.page(TABLE_NAME, null, null, null, param.getPageNum(), param.getPageSize(), true));
     }
 
 }

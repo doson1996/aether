@@ -91,14 +91,14 @@
                                         <el-button
                                                 size="small"
                                                 type="primary"
-                                                :icon="VideoPlay"
+                                                :icon="Delete"
                                                 @click="operateJob(scope.row.jobName, 'start')"
                                                 :disabled="scope.row.status === 1">
                                         </el-button>
                                         <el-button
                                                 size="small"
                                                 type="warning"
-                                                :icon="VideoPause"
+                                                :icon="Delete"
                                                 @click="operateJob(scope.row.jobName, 'pause')"
                                                 :disabled="scope.row.status === 0">
                                         </el-button>
@@ -155,7 +155,7 @@
 <script th:inline="javascript">
     const { createApp, ref, onMounted, reactive } = Vue;
     const { ElMessage, ElMessageBox } = ElementPlus;
-    const { VideoPlay, VideoPause, Delete, Refresh } = ElementPlus.iconsVue;
+    const { Delete, Refresh, VideoPlay, VideoPause } = ElementPlus;
 
     // API基础URL配置
     const API_BASE_URL = /*[[@{/}]]*/ 'http://localhost:8081';
@@ -184,14 +184,12 @@
                 loading.value = true;
                 try {
                     console.log('加载任务列表...')
-                    const response = await axios.get(`${API_BASE_URL}/job-info/page`, {
-                        params: {
-                            page: pagination.currentPage,
-                            size: pagination.pageSize
-                        }
+                    const response = await axios.post(`${API_BASE_URL}job-info/page`, {
+                        pageNum: pagination.currentPage,
+                        pageSize: pagination.pageSize
                     });
                     if (response.data.success) {
-                        jobs.value = response.data.data.list || [];
+                        jobs.value = response.data.data.data || [];
                         pagination.total = response.data.data.total || 0;
                         updateStatistics(jobs.value);
                     } else {
@@ -317,13 +315,15 @@
                 goToAddJob,
                 handleSizeChange,
                 handleCurrentChange,
-                VideoPlay,
-                VideoPause,
                 Delete,
-                Refresh
+                Refresh,
+                VideoPlay,
+                VideoPause
             };
         }
     }).use(ElementPlus).mount('#app');
 </script>
+
+
 </body>
 </html>

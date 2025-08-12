@@ -14,7 +14,8 @@ import lombok.extern.slf4j.Slf4j;
  * 2.继承AbstractJob，实现execute方法，执行任务逻辑
  */
 @Slf4j
-@Job(name = "cronJob", cron = "*/5 * * * * *")
+//@Job(name = "cronJob", cron = "*/5 * * * * *")
+@Job(name = "cronJob")
 public class CronJob extends AbstractJob {
 
     @Override

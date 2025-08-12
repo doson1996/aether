@@ -26,8 +26,28 @@ public class AddJobParam {
     private String jobDescription;
 
     /**
+     * 任务类型 1.cron 2.定时任务 3.http 4.shell 5.java
+     */
+    private String jobType;
+
+    /**
      * cron表达式
      */
     private String cronExpression;
+
+    /**
+     * 类名
+     */
+    private String className;
+
+    /**
+     * http url
+     */
+    private String httpUrl;
+
+    /**
+     * 状态
+     */
+    private Integer status;
 
 }

@@ -30,6 +30,10 @@
             <h2>添加新任务</h2>
             <el-card>
                 <el-form :model="jobForm" :rules="rules" ref="jobFormRef" label-width="120px">
+                    <el-form-item label="应用名" prop="jobName">
+                        <el-input v-model="jobForm.appName" placeholder="请输入应用名"></el-input>
+                    </el-form-item>
+
                     <el-form-item label="任务名称" prop="jobName">
                         <el-input v-model="jobForm.jobName" placeholder="请输入任务名称"></el-input>
                     </el-form-item>
@@ -42,13 +46,32 @@
                         </el-input>
                     </el-form-item>
 
-                    <el-form-item label="执行类名" prop="className">
+                    <el-form-item label="任务类型" prop="jobType">
+                        <el-select v-model="jobForm.jobType" placeholder="请选择任务类型" style="width: 240px">
+                            <el-option
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item  v-if="jobForm.jobType === '1' || jobForm.jobType === '2'"  label="Cron表达式" prop="cronExpression">
+                        <el-input v-model="jobForm.cronExpression" placeholder="请输入Cron表达式"></el-input>
+                    </el-form-item>
+
+                    <el-form-item  v-if="jobForm.jobType === '3'"  label="http链接" prop="className">
+                        <el-input v-model="jobForm.httpUrl" placeholder="请输入http链接"></el-input>
+                    </el-form-item>
+
+                    <el-form-item  v-if="jobForm.jobType === '5'"  label="执行类名" prop="className">
                         <el-input v-model="jobForm.className" placeholder="请输入执行类名"></el-input>
                     </el-form-item>
 
-                    <el-form-item label="Cron表达式" prop="cronExpression">
-                        <el-input v-model="jobForm.cronExpression" placeholder="请输入Cron表达式"></el-input>
-                    </el-form-item>
+
+
+
 
                     <el-form-item>
                         <el-button type="primary" @click="submitForm" :loading="submitLoading">添加任务</el-button>
@@ -69,22 +92,58 @@
 
     createApp({
         setup() {
+            // 1.cron 2.定时任务 3.http 4.shell 5.java
+            const options = [
+                {
+                    value: '1',
+                    label: 'cron',
+                },
+                {
+                    value: '2',
+                    label: '定时任务',
+                },
+                {
+                    value: '3',
+                    label: 'http',
+                },
+                {
+                    value: '4',
+                    label: 'shell',
+                },
+                {
+                    value: '5',
+                    label: 'java',
+                },
+            ]
+
             const jobFormRef = ref();
             const submitLoading = ref(false);
 
             const jobForm = reactive({
+                appName: '',
                 jobName: '',
                 jobDescription: '',
+                jobType: '',
                 className: '',
+                httpUrl: '',
                 cronExpression: ''
             });
 
             const rules = {
+                appName: [
+                    { required: true, message: '请输入应用名', trigger: 'blur' }
+                ],
                 jobName: [
                     { required: true, message: '请输入任务名称', trigger: 'blur' }
                 ],
+                jobType: [
+                    { required: true, message: '请选择任务类型', trigger: 'change' }
+                ],
                 className: [
                     { required: true, message: '请输入执行类名', trigger: 'blur' }
+                ],
+                httpUrl: [
+                    { required: true, message: '请输入httpUrl', trigger: 'blur' }
                 ],
                 cronExpression: [
                     { required: true, message: '请输入Cron表达式', trigger: 'blur' }
@@ -104,7 +163,7 @@
 
                             if (response.data.success) {
                                 ElMessage.success('任务添加成功！');
-                                resetForm();
+                                window.location.href = '/api/page/';
                             } else {
                                 ElMessage.error('任务添加失败: ' + response.data.message);
                             }
@@ -128,7 +187,8 @@
                 jobForm,
                 rules,
                 submitForm,
-                resetForm
+                resetForm,
+                options
             };
         }
     }).use(ElementPlus).mount('#app');

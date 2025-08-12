@@ -49,7 +49,7 @@ public class JobInfoController {
      *
      * @return 任务列表
      */
-    @GetMapping("/page")
+    @PostMapping("/page")
     public Result<Page> page(@RequestBody BasePageParam param) {
         log.info("获取任务列表：{}", param);
         return jobInfoService.page(param);
