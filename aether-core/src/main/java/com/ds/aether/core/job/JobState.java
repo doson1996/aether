@@ -32,4 +32,9 @@ public class JobState {
      */
     public static final Integer CANCEL = 4;
 
+    /**
+     * 调度中
+     */
+//    public static final Integer SCHEDULING = 5;
+
 }

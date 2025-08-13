@@ -1,13 +1,19 @@
 package com.ds.aether.server.scheduler;
 
 import com.ds.aether.core.context.SpringContext;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * @author ds
  * @date 2025/7/31
  * @description 调度器上下文
  */
-public class SchedulerContext implements Scheduler {
+public class SchedulerContext implements Scheduler, InitializingBean, DisposableBean {
+
+    @Value("${aether.server.scheduler.type:cronScheduler}")
+    private String schedulerType;
 
     @Override
     public void start() {
@@ -42,7 +48,16 @@ public class SchedulerContext implements Scheduler {
     }
 
     private Scheduler getScheduler() {
-        return SpringContext.getContext().getBean("cronScheduler", Scheduler.class);
+        return SpringContext.getContext().getBean(schedulerType, Scheduler.class);
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        getScheduler().start();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        stop();
+    }
 }

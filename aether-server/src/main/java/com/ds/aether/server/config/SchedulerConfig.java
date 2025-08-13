@@ -5,6 +5,7 @@ import com.ds.aether.server.scheduler.DistributedCronScheduler;
 import com.ds.aether.server.scheduler.SchedulerContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.core.RedisTemplate;
 
 /**
@@ -15,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration
 public class SchedulerConfig {
 
+    @DependsOn("springContext")
     @Bean
     public SchedulerContext schedulerContext() {
         return new SchedulerContext();
