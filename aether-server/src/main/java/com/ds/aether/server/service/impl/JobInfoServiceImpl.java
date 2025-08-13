@@ -8,6 +8,9 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.core.common.Page;
+import com.ds.aether.core.constant.JobType;
+import com.ds.aether.core.constant.YesOrNo;
+import com.ds.aether.core.job.JobState;
 import com.ds.aether.core.model.ReportStateParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.server.AddJobParam;
@@ -20,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author ds
@@ -82,6 +86,34 @@ public class JobInfoServiceImpl implements JobInfoService {
     public Document findOne(String jobName) {
         Bson condition = Filters.and(Filters.eq("jobName", jobName));
         return mongoRepo.findOne(TABLE_NAME, condition);
+    }
+
+    @Override
+    public Result<String> schedule(String jobName) {
+        Document jobInfo = findOne(jobName);
+        if (CollectionUtils.isEmpty(jobInfo)) {
+            return Result.fail("任务不存在!");
+        }
+
+        String jobType = jobInfo.getString("jobType");
+        if (JobType.CRON.equals(jobType)) {
+            String cronExpression = jobInfo.getString("cronExpression");
+            if (StrUtil.isBlank(cronExpression)) {
+                return Result.fail("请先设置cron表达式");
+            }
+
+            Integer scheduling = jobInfo.getInteger("scheduling");
+            // todo
+            if (YesOrNo.YES.equals(scheduling)) {
+                return Result.fail("任务正在调度中!");
+            }
+
+            Document updateDoc = new Document();
+            updateDoc.put("scheduling", YesOrNo.YES);
+            mongoRepo.updateOne(TABLE_NAME, Filters.and(Filters.eq("jobName", jobName)), new Document("$set", updateDoc));
+            schedulerContext.schedule(cronExpression, jobName);
+        }
+        return Result.fail("非cron类型任务不允许调度");
     }
 
     @Override

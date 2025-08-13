@@ -85,7 +85,22 @@
                             <el-table-column prop="jobName" label="任务名称" width="150"></el-table-column>
                             <el-table-column prop="jobParams" label="任务参数" width="150"></el-table-column>
                             <el-table-column prop="jobDescription" label="任务描述" width="100"></el-table-column>
-                            <el-table-column prop="jobType" label="任务类型" width="150"></el-table-column>
+                            <el-table-column prop="scheduling" label="是否调度中" width="100"></el-table-column>
+                            <el-table-column label="是否调度中" width="100">
+                                <template #default="scope">
+                                    <el-tag>
+                                        {{ getSchedulingText(scope.row.scheduling) }}
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="任务类型" width="100">
+                                <template #default="scope">
+                                    <el-tag>
+                                        {{ getJobTypeText(scope.row.jobType) }}
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+
                             <el-table-column prop="className" label="执行类" width="150"></el-table-column>
                             <el-table-column prop="cronExpression" label="Cron表达式" width="100"></el-table-column>
                             <el-table-column label="状态" width="100">
@@ -95,7 +110,7 @@
                                     </el-tag>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="操作" width="200">
+                            <el-table-column label="操作" width="250">
                                 <template #default="scope">
                                     <el-button-group>
                                         <el-button
@@ -105,6 +120,14 @@
                                                 @click="operateJob(scope.row.jobName, 'start')"
                                                 :disabled="scope.row.status === 1">
                                             执行
+                                        </el-button>
+                                        <el-button
+                                                size="small"
+                                                type="primary"
+                                                :icon="Delete"
+                                                @click="operateJob(scope.row.jobName, 'schedule')"
+                                                :disabled="scope.row.status === 1">
+                                            调度
                                         </el-button>
                                         <el-button
                                                 size="small"
@@ -175,7 +198,8 @@
                                     </el-table-column>
                                     <el-table-column label="操作" width="150">
                                         <template #default="scope">
-                                            <el-button size="small" type="primary" @click="viewExecutorDetail(scope.row)">
+                                            <el-button size="small" type="primary"
+                                                       @click="viewExecutorDetail(scope.row)">
                                                 查看详情
                                             </el-button>
                                         </template>
@@ -380,6 +404,32 @@
                 }
             };
 
+            const getJobTypeText = (type) => {
+                switch (type) {
+                    case '1':
+                        return 'cron';
+                    case '2':
+                        return '定时任务';
+                    case '3':
+                        return 'http';
+                    case '4':
+                        return 'shell';
+                    case '5':
+                        return 'java';
+                    default:
+                        return '未知';
+                }
+            }
+
+            const getSchedulingText = (scheduling) => {
+                switch (scheduling) {
+                    case 1:
+                        return '是';
+                    default:
+                        return '否';
+                }
+            }
+
             // 获取执行器状态对应的标签类型
             const getExecutorStatusType = (status) => {
                 switch (status) {
@@ -511,6 +561,8 @@
                 loadExecutors,
                 getJobStatusType,
                 getJobStatusText,
+                getJobTypeText,
+                getSchedulingText,
                 getExecutorStatusType,
                 getExecutorStatusText,
                 viewExecutorDetail,

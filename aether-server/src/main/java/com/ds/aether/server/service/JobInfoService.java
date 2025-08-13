@@ -65,4 +65,12 @@ public interface JobInfoService {
      */
     Result<String> reportState(ReportStateParam param);
 
+    /**
+     * 调度任务
+     *
+     * @param jobName
+     * @return
+     */
+    Result<String> schedule(String jobName);
+
 }

@@ -68,6 +68,11 @@ public class JobInfoController {
         return executorService.execJob(execJobParam);
     }
 
+    @PostMapping("schedule/{jobName}")
+    public Result<String> schedule(@PathVariable String jobName) {
+        return jobInfoService.schedule(jobName);
+    }
+
     @DeleteMapping("delete/{jobName}")
     public Result<String> delete(@PathVariable String jobName) {
         log.info("删除任务信息参数：{}", jobName);
