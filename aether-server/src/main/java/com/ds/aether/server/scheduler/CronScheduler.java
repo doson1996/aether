@@ -20,9 +20,12 @@ import lombok.extern.slf4j.Slf4j;
  * @description
  */
 @Slf4j
-public class CronScheduler {
+public class CronScheduler implements Scheduler {
+
     private final ScheduledExecutorService scheduler;
+
     private final AtomicBoolean running = new AtomicBoolean(false);
+
     // 用于存储任务的Future，以便可以取消任务
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
@@ -43,6 +46,7 @@ public class CronScheduler {
         scheduledTasks.put(jobName, future);
     }
 
+    @Override
     public void schedule(String cronExpression, String jobName) {
         if (!running.get()) {
             throw new IllegalStateException("调度器未启动");
@@ -56,6 +60,7 @@ public class CronScheduler {
         scheduledTasks.put(jobName, future);
     }
 
+    @Override
     public boolean cancel(String jobName) {
         ScheduledFuture<?> future = scheduledTasks.remove(jobName);
         if (future != null) {
@@ -127,10 +132,12 @@ public class CronScheduler {
         }, delay, TimeUnit.SECONDS);
     }
 
+    @Override
     public void start() {
         running.set(true);
     }
 
+    @Override
     public void stop() {
         running.set(false);
         // 取消所有已调度的任务

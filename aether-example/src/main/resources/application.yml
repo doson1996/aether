@@ -3,6 +3,9 @@ server:
   servlet:
     context-path: /api
 
+spring:
+  application:
+    name: aether-executor
 
 aether:
   server:

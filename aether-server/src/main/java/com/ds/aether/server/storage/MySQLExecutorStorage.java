@@ -4,7 +4,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ds.aether.core.common.Page;
 import com.ds.aether.core.model.server.ExecutorInfo;
+import com.ds.aether.server.model.dto.BasePageParam;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -53,6 +55,11 @@ public class MySQLExecutorStorage implements ExecutorStorage {
     @Override
     public void update(ExecutorInfo executorInfo) {
 
+    }
+
+    @Override
+    public Page page(BasePageParam param) {
+        return null;
     }
 
 }

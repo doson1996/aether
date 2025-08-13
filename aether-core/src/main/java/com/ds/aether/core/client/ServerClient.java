@@ -42,9 +42,10 @@ public class ServerClient implements Client {
         return HttpUtil.post(url, JSONObject.toJSONString(reportStateParam));
     }
 
-    public String registerExecutor(String clientName, String clientHost, String clientPort, String contextPath) {
+    public String registerExecutor(String appName, String clientName, String clientHost, String clientPort, String contextPath) {
         try {
             RegisterParam registerParam = new RegisterParam();
+            registerParam.setAppName(appName);
             registerParam.setName(clientName);
             registerParam.setHost(clientHost + ":" + clientPort);
             registerParam.setContextPath(contextPath);

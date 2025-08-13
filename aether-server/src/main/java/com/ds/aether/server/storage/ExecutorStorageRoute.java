@@ -3,8 +3,10 @@ package com.ds.aether.server.storage;
 import java.util.Map;
 
 import cn.hutool.core.util.StrUtil;
+import com.ds.aether.core.common.Page;
 import com.ds.aether.core.context.SpringContext;
 import com.ds.aether.core.model.server.ExecutorInfo;
+import com.ds.aether.server.model.dto.BasePageParam;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -62,6 +64,11 @@ public class ExecutorStorageRoute implements ExecutorStorage {
     @Override
     public void removeAll() {
         getExecutorStorage().removeAll();
+    }
+
+    @Override
+    public Page page(BasePageParam param) {
+        return getExecutorStorage().page(param);
     }
 
     @Override

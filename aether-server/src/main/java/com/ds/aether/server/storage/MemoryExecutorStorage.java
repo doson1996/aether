@@ -1,11 +1,15 @@
 package com.ds.aether.server.storage;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.util.PageUtil;
+import com.ds.aether.core.common.Page;
 import com.ds.aether.core.constant.ExecutorStatus;
 import com.ds.aether.core.model.server.ExecutorInfo;
+import com.ds.aether.server.model.dto.BasePageParam;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -66,6 +70,12 @@ public class MemoryExecutorStorage implements ExecutorStorage {
     @Override
     public void update(ExecutorInfo executorInfo) {
         add(executorInfo);
+    }
+
+    @Override
+    public Page page(BasePageParam param) {
+        List<ExecutorInfo> data = EXECUTORS.values().stream().skip((long) (param.getPageNum() - 1) * param.getPageSize()).collect(Collectors.toList());
+        return new Page((long) EXECUTORS.size(), data, param.getPageNum(), param.getPageSize());
     }
 
 }

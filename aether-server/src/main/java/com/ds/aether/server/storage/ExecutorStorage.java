@@ -1,6 +1,8 @@
 package com.ds.aether.server.storage;
 
+import com.ds.aether.core.common.Page;
 import com.ds.aether.core.model.server.ExecutorInfo;
+import com.ds.aether.server.model.dto.BasePageParam;
 
 import java.util.Map;
 
@@ -67,5 +69,7 @@ public interface ExecutorStorage {
      * @param executorInfo 执行器信息
      */
     void update(ExecutorInfo executorInfo);
+
+    Page page(BasePageParam param);
 
 }

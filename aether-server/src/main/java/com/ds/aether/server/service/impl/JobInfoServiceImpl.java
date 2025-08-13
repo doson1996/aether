@@ -33,6 +33,9 @@ public class JobInfoServiceImpl implements JobInfoService {
     @Resource
     private MongoRepo mongoRepo;
 
+    @Resource
+    private SchedulerContext schedulerContext;
+
     public static final String TABLE_NAME = "job_info";
 
     @Override
@@ -42,7 +45,7 @@ public class JobInfoServiceImpl implements JobInfoService {
             mongoRepo.saveOrUpdate(TABLE_NAME, condition, Document.parse(jobInfo.toJSONString()));
             String cron = jobInfo.getString("cron");
             if (StrUtil.isNotBlank(cron)) {
-                SchedulerContext.schedule(cron, jobName);
+                schedulerContext.schedule(cron, jobName);
             }
         });
         return Result.ok();
@@ -58,7 +61,7 @@ public class JobInfoServiceImpl implements JobInfoService {
 
         String cronExpression = param.getCronExpression();
         if (StrUtil.isNotBlank(cronExpression)) {
-            SchedulerContext.schedule(cronExpression, jobName);
+            schedulerContext.schedule(cronExpression, jobName);
         }
         return Result.ok("添加成功!");
     }

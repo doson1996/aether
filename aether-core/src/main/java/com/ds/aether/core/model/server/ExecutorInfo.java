@@ -37,6 +37,11 @@ public class ExecutorInfo {
     }
 
     /**
+     * 执行器所属应用名称
+     */
+    private String appName;
+
+    /**
      * 执行器名称
      */
     private String name;
@@ -54,7 +59,6 @@ public class ExecutorInfo {
     /**
      * 最后一次心跳时间
      */
-    @JSONField(name = "lastHeartbeat")
     private Long lastHeartbeat;
 
     /**
@@ -66,5 +70,10 @@ public class ExecutorInfo {
      * 执行器权重
      */
     private Integer weight;
+
+    /**
+     * 注册时间
+     */
+    private String registerTime;
 
 }

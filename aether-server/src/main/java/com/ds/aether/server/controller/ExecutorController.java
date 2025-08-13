@@ -1,11 +1,13 @@
 package com.ds.aether.server.controller;
 
+import com.ds.aether.core.common.Page;
 import com.ds.aether.core.constant.ServerConstant;
 import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.HeartbeatParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.client.RegisterParam;
 import com.ds.aether.core.model.server.ExecutorInfo;
+import com.ds.aether.server.model.dto.BasePageParam;
 import com.ds.aether.server.service.ExecutorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,6 +41,11 @@ public class ExecutorController {
     @GetMapping("list")
     public Result<Map<String, ExecutorInfo>> list() {
         return executorService.list();
+    }
+
+    @PostMapping("page")
+    public Result<Page> page(@RequestBody BasePageParam param) {
+        return executorService.page(param);
     }
 
     @PostMapping("register")

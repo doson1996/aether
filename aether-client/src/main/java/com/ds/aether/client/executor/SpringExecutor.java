@@ -71,9 +71,11 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         String clientPort = context.getEnvironment().getProperty("server.port", "8080");
         // 客户端请求上下文路径
         String contextPath = context.getEnvironment().getProperty("server.servlet.context-path", "");
+        // 应用名
+        String appName = context.getEnvironment().getProperty("spring.application.name", "-");
 
         // 发送注册请求
-        serverClient.registerExecutor(clientName, clientHost, clientPort, contextPath);
+        serverClient.registerExecutor(appName, clientName, clientHost, clientPort, contextPath);
         log.debug("执行器【{}】已注册", clientName);
     }
 

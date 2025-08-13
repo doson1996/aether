@@ -1,6 +1,13 @@
 package com.ds.aether.server.service.impl;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.ds.aether.core.common.Page;
 import com.ds.aether.core.constant.ExecutorStatus;
 import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.HeartbeatParam;
@@ -11,15 +18,13 @@ import com.ds.aether.core.model.server.ExecutorInfo;
 import com.ds.aether.server.client.ClientHelper;
 import com.ds.aether.server.executor.ExecutorSelector;
 import com.ds.aether.server.executor.ExecutorSelectorFactory;
+import com.ds.aether.server.model.dto.BasePageParam;
 import com.ds.aether.server.service.ExecutorService;
 import com.ds.aether.server.storage.ExecutorStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.Map;
 
 /**
  * @author ds
@@ -91,6 +96,8 @@ public class ExecutorServiceImpl implements ExecutorService {
             return Result.fail("执行器已存在!");
         }
         ExecutorInfo executorInfo = new ExecutorInfo(name, host, param.getContextPath(), ExecutorStatus.ONLINE);
+        executorInfo.setAppName(param.getAppName());
+        executorInfo.setRegisterTime(DateUtil.now());
         executorStorage.add(executorInfo);
         return Result.ok("注册执行器成功!");
     }
@@ -129,6 +136,11 @@ public class ExecutorServiceImpl implements ExecutorService {
         }
         executorStorage.update(executorInfo);
         return Result.ok("心跳接收成功!");
+    }
+
+    @Override
+    public Result<Page> page(BasePageParam param) {
+        return Result.okData(executorStorage.page(param));
     }
 
 }

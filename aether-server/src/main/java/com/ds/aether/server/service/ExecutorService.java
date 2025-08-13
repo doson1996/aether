@@ -1,10 +1,12 @@
 package com.ds.aether.server.service;
 
+import com.ds.aether.core.common.Page;
 import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.HeartbeatParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.client.RegisterParam;
 import com.ds.aether.core.model.server.ExecutorInfo;
+import com.ds.aether.server.model.dto.BasePageParam;
 
 import java.util.Map;
 
@@ -61,4 +63,5 @@ public interface ExecutorService {
      */
     Result<String> heartbeat(HeartbeatParam param);
 
+    Result<Page> page(BasePageParam param);
 }

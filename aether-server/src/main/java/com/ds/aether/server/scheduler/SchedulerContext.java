@@ -1,18 +1,22 @@
 package com.ds.aether.server.scheduler;
 
+import com.ds.aether.core.context.SpringContext;
+
 /**
  * @author ds
  * @date 2025/7/31
  * @description 调度器上下文
  */
-public class SchedulerContext {
+public class SchedulerContext implements Scheduler {
 
-    private static final CronScheduler SCHEDULER;
+    @Override
+    public void start() {
+        getScheduler().start();
+    }
 
-    static {
-        // 启动调度器
-        SCHEDULER = new CronScheduler();
-        SCHEDULER.start();
+    @Override
+    public void stop() {
+        getScheduler().stop();
     }
 
     /**
@@ -21,17 +25,24 @@ public class SchedulerContext {
      * @param cronExpression
      * @param jobName
      */
-    public static void schedule(String cronExpression, String jobName) {
-        SCHEDULER.schedule(cronExpression, jobName);
+    @Override
+    public void schedule(String cronExpression, String jobName) {
+        getScheduler().schedule(cronExpression, jobName);
     }
 
     /**
      * 取消任务
      *
      * @param jobName
+     * @return
      */
-    public static void cancel(String jobName) {
-        SCHEDULER.cancel(jobName);
+    @Override
+    public boolean cancel(String jobName) {
+        return getScheduler().cancel(jobName);
+    }
+
+    private Scheduler getScheduler() {
+        return SpringContext.getContext().getBean("cronScheduler", Scheduler.class);
     }
 
 }

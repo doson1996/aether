@@ -8,8 +8,10 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.alibaba.fastjson2.JSON;
+import com.ds.aether.core.common.Page;
 import com.ds.aether.core.constant.ExecutorStatus;
 import com.ds.aether.core.model.server.ExecutorInfo;
+import com.ds.aether.server.model.dto.BasePageParam;
 import com.ds.aether.server.repo.MongoRepo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
@@ -71,7 +73,7 @@ public class MongoExecutorStorage implements ExecutorStorage {
             return false;
         }
 
-        Bson condition = Filters.eq("host", executorInfo.getHost());
+        Bson condition = Filters.eq("name", executorInfo.getName());
         mongoRepo.saveOrUpdate(TABLE, condition, Document.parse(JSON.toJSONString(executorInfo)));
         return true;
     }
@@ -90,6 +92,11 @@ public class MongoExecutorStorage implements ExecutorStorage {
     @Override
     public void update(ExecutorInfo executorInfo) {
         mongoRepo.updateMany(TABLE, new Document("name", executorInfo.getName()), new Document("$set", Document.parse(JSON.toJSONString(executorInfo))));
+    }
+
+    @Override
+    public Page page(BasePageParam param) {
+        return mongoRepo.page(TABLE, null, null, null, param.getPageNum(), param.getPageSize(), true);
     }
 
 }
