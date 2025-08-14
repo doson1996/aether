@@ -47,6 +47,11 @@ public class SchedulerContext implements Scheduler, InitializingBean, Disposable
         return getScheduler().cancel(jobName);
     }
 
+    @Override
+    public boolean isScheduled(String jobName) {
+        return getScheduler().isScheduled(jobName);
+    }
+
     private Scheduler getScheduler() {
         return SpringContext.getContext().getBean(schedulerType, Scheduler.class);
     }

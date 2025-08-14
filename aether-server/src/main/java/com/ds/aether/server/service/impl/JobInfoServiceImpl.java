@@ -1,5 +1,6 @@
 package com.ds.aether.server.service.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -56,11 +57,11 @@ public class JobInfoServiceImpl implements JobInfoService {
     }
 
     @Override
-    public Result<String> add(AddJobParam param) {
+    public Result<String> saveOrUpdate(AddJobParam param) {
         String jobName = param.getJobName();
         String appName = param.getAppName();
         Bson condition = Filters.and(Filters.eq("jobName", jobName), Filters.eq("appName", appName));
-        param.setStatus(2);
+//        param.setStatus(JobState.NOT_EXECUTED);
         mongoRepo.saveOrUpdate(TABLE_NAME, condition, Document.parse(JSON.toJSONString(param)));
 
         String cronExpression = param.getCronExpression();
@@ -72,11 +73,22 @@ public class JobInfoServiceImpl implements JobInfoService {
 
     @Override
     public Result<Page> page(BasePageParam param) {
-        return Result.okData(mongoRepo.page(TABLE_NAME, null, null, null, param.getPageNum(), param.getPageSize(), true));
+        Page page = mongoRepo.page(TABLE_NAME, null, null, null, param.getPageNum(), param.getPageSize(), true);
+        List<Document> data = (List<Document>) page.getData();
+        for (Document datum : data) {
+            String jobName = datum.getString("jobName");
+            if (StrUtil.isNotBlank(jobName)) {
+                datum.put("scheduling", schedulerContext.isScheduled(jobName) ? YesOrNo.YES : YesOrNo.NO);
+            }
+        }
+        return Result.okData(page);
     }
 
     @Override
     public Result<String> delete(String jobName) {
+        if (StrUtil.isBlank(jobName)) {
+            return Result.fail("任务名不能为空!");
+        }
         Bson condition = Filters.and(Filters.eq("jobName", jobName));
         mongoRepo.deleteMany(TABLE_NAME, condition);
         return Result.ok("删除成功!");
@@ -102,23 +114,48 @@ public class JobInfoServiceImpl implements JobInfoService {
                 return Result.fail("请先设置cron表达式");
             }
 
-            Integer scheduling = jobInfo.getInteger("scheduling");
-            // todo
-            if (YesOrNo.YES.equals(scheduling)) {
+            if (schedulerContext.isScheduled(jobName)) {
                 return Result.fail("任务正在调度中!");
             }
 
-            Document updateDoc = new Document();
-            updateDoc.put("scheduling", YesOrNo.YES);
-            mongoRepo.updateOne(TABLE_NAME, Filters.and(Filters.eq("jobName", jobName)), new Document("$set", updateDoc));
             schedulerContext.schedule(cronExpression, jobName);
+            return Result.ok("任务调度成功!");
         }
         return Result.fail("非cron类型任务不允许调度");
     }
 
     @Override
+    public Result<String> cancel(String jobName) {
+        if (StrUtil.isBlank(jobName)) {
+            return Result.fail("任务名不能为空!");
+        }
+
+        boolean cancel = schedulerContext.cancel(jobName);
+        return cancel ? Result.ok("取消成功") : Result.fail("取消失败");
+    }
+
+    @Override
+    public Result<JSONObject> detail(String jobName) {
+        if (StrUtil.isBlank(jobName)) {
+            return Result.fail("任务名不能为空!");
+        }
+
+        Document document = mongoRepo.findOne(TABLE_NAME, Filters.eq("jobName", jobName));
+        if (CollectionUtils.isEmpty(document)) {
+            return Result.fail("任务不存在");
+        }
+
+        return Result.okData(JSON.parseObject(document.toJson()));
+    }
+
+    @Override
     public Result<String> reportState(ReportStateParam param) {
         String jobName = param.getJobName();
+
+        if (StrUtil.isBlank(jobName)) {
+            return Result.fail("任务名不能为空!");
+        }
+
         Integer status = param.getStatus();
         Document updateDoc = new Document();
         updateDoc.put("status", status);

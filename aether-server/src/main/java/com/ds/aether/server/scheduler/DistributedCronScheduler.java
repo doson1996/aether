@@ -73,6 +73,12 @@ public class DistributedCronScheduler implements Scheduler {
         return Boolean.TRUE.equals(deleted);
     }
 
+    @Override
+    public boolean isScheduled(String jobName) {
+        String jobInfoKey = JOB_INFO_PREFIX + jobName;
+        return redisTemplate.hasKey(jobInfoKey);
+    }
+
     /**
      * 启动调度器
      */

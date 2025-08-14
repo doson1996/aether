@@ -30,4 +30,12 @@ public interface Scheduler {
      */
     boolean cancel(String jobName);
 
+    /**
+     * 判断任务是否正在调度
+     *
+     * @param jobName
+     * @return
+     */
+    boolean isScheduled(String jobName);
+
 }

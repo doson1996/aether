@@ -23,7 +23,27 @@
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2><i class="bi bi-list-task"></i> 任务列表</h2>
-                        <el-button type="primary" @click="loadJobs" :icon="Refresh" circle>刷新</el-button>
+                        <div class="d-flex align-items-center">
+                            <el-input-number
+                                    v-model="refreshIntervalValue"
+                                    :min="5"
+                                    :max="300"
+                                    :step="5"
+                                    size="small"
+                                    class="me-2"            style="width: 120px"
+                                    @change="updateRefreshInterval">
+                            </el-input-number>
+                            <span class="me-2 text-muted" style="font-size: 14px;">秒</span>
+                            <el-switch
+                                    v-model="autoRefresh"
+                                    @change="toggleAutoRefresh"
+                                    active-text="自动刷新"
+                                    :active-icon="Refresh"
+                                    size="small"
+                                    class="me-2">
+                            </el-switch>
+                            <el-button type="primary" @click="loadJobs" :icon="Refresh" circle>刷新</el-button>
+                        </div>
                     </div>
 
                     <!-- 任务统计卡片 -->
@@ -82,11 +102,10 @@
                     <el-card>
                         <el-table :data="jobs" style="width: 100%" v-loading="loading">
                             <el-table-column prop="appName" label="应用名" width="150"></el-table-column>
-                            <el-table-column prop="jobName" label="任务名称" width="150"></el-table-column>
-                            <el-table-column prop="jobParams" label="任务参数" width="150"></el-table-column>
-                            <el-table-column prop="jobDescription" label="任务描述" width="100"></el-table-column>
-                            <el-table-column prop="scheduling" label="是否调度中" width="100"></el-table-column>
-                            <el-table-column label="是否调度中" width="100">
+                            <el-table-column prop="jobName" label="任务名称" width="200"></el-table-column>
+                            <!--                            <el-table-column prop="jobParams" label="任务参数" width="150"></el-table-column>-->
+                            <!--                            <el-table-column prop="jobDescription" label="任务描述" width="100"></el-table-column>-->
+                            <el-table-column label="调度中" width="100">
                                 <template #default="scope">
                                     <el-tag>
                                         {{ getSchedulingText(scope.row.scheduling) }}
@@ -101,18 +120,30 @@
                                 </template>
                             </el-table-column>
 
-                            <el-table-column prop="className" label="执行类" width="150"></el-table-column>
+                            <!--                            <el-table-column prop="className" label="执行类" width="150"></el-table-column>-->
                             <el-table-column prop="cronExpression" label="Cron表达式" width="100"></el-table-column>
-                            <el-table-column label="状态" width="100">
+                            <el-table-column label="状态" width="150">
                                 <template #default="scope">
                                     <el-tag :type="getJobStatusType(scope.row.status)">
                                         {{ getJobStatusText(scope.row.status) }}
                                     </el-tag>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="操作" width="250">
+                            <el-table-column label="操作" width="350">
                                 <template #default="scope">
                                     <el-button-group>
+                                        <el-button
+                                                size="small"
+                                                type="primary"
+                                                @click="viewJobDetail(scope.row)">
+                                            查看
+                                        </el-button>
+                                        <el-button
+                                                size="small"
+                                                type="primary"
+                                                @click="editJob(scope.row)">
+                                            编辑
+                                        </el-button>
                                         <el-button
                                                 size="small"
                                                 type="primary"
@@ -126,7 +157,7 @@
                                                 type="primary"
                                                 :icon="Delete"
                                                 @click="operateJob(scope.row.jobName, 'schedule')"
-                                                :disabled="scope.row.status === 1">
+                                                :disabled="scope.row.status === 1 || scope.row.scheduling === 1">
                                             调度
                                         </el-button>
                                         <el-button
@@ -265,6 +296,100 @@
         </el-form>
     </el-dialog>
 
+    <!-- 在执行器详情对话框后面添加任务详情对话框 -->
+    <el-dialog v-model="jobDetailDialogVisible" title="任务详情" width="60%">
+        <el-form :model="selectedJob" label-width="120px">
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item label="应用名:">
+                        <span>{{ selectedJob.appName }}</span>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="任务名称:">
+                        <span>{{ selectedJob.jobName }}</span>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item label="任务描述:">
+                        <span>{{ selectedJob.jobDescription || '无' }}</span>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="任务参数:">
+                        <span>{{ selectedJob.jobParams || '无' }}</span>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item label="任务类型:">
+                        <el-tag>{{ getJobTypeText(selectedJob.jobType) }}</el-tag>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="状态:">
+                        <el-tag :type="getJobStatusType(selectedJob.status)">
+                            {{ getJobStatusText(selectedJob.status) }}
+                        </el-tag>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item label="是否调度中:">
+                        <el-tag>{{ getSchedulingText(selectedJob.scheduling) }}</el-tag>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="Cron表达式:">
+                        <span>{{ selectedJob.cronExpression || '无' }}</span>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item label="执行类:">
+                        <span>{{ selectedJob.className || '无' }}</span>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="方法名:">
+                        <span>{{ selectedJob.methodName || '无' }}</span>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-form-item label="创建时间:">
+                <span>{{ selectedJob.createTime || '无' }}</span>
+            </el-form-item>
+
+            <el-form-item label="更新时间:">
+                <span>{{ selectedJob.updateTime || '无' }}</span>
+            </el-form-item>
+
+            <el-form-item v-if="selectedJob.lastExecuteTime" label="最后执行时间:">
+                <span>{{ selectedJob.lastExecuteTime }}</span>
+            </el-form-item>
+
+            <el-form-item v-if="selectedJob.nextExecuteTime" label="下次执行时间:">
+                <span>{{ selectedJob.nextExecuteTime }}</span>
+            </el-form-item>
+        </el-form>
+
+        <template #footer>
+        <span class="dialog-footer">
+            <el-button @click="jobDetailDialogVisible = false">关闭</el-button>
+        </span>
+        </template>
+    </el-dialog>
+
     <!-- 操作结果提示 -->
     <el-message v-for="message in messages" :key="message.id"
                 :type="message.type"
@@ -274,7 +399,7 @@
 </div>
 
 <script th:inline="javascript">
-    const {createApp, ref, onMounted, reactive} = Vue;
+    const {createApp, ref, onMounted, onBeforeUnmount, reactive} = Vue;
     const {ElMessage, ElMessageBox} = ElementPlus;
     const {Delete, Refresh, VideoPlay, VideoPause} = ElementPlus;
 
@@ -297,9 +422,19 @@
                 completed: 0
             });
 
+            // 编辑任务
+            const editJob = (job) => {
+                window.location.href = `/api/page/edit-job?jobName=${job.jobName}`;
+            };
+
             // 执行器详情对话框
             const executorDetailDialogVisible = ref(false);
             const selectedExecutor = ref({});
+
+            // 任务详情对话框
+            const jobDetailDialogVisible = ref(false);
+            const selectedJob = ref({});
+
 
             // 任务分页信息
             const pagination = reactive({
@@ -314,6 +449,65 @@
                 pageSize: 10,
                 total: 0
             });
+
+            let refreshInterval = null;
+
+            const refreshIntervalValue = ref(10); // 默认10秒
+
+            // 开始定时刷新
+            const startAutoRefresh = () => {
+                // 先清除已存在的定时器
+                stopAutoRefresh();
+                // 设置新的定时器，根据用户配置的时间间隔刷新
+                if (refreshIntervalValue.value > 0) {
+                    refreshInterval = setInterval(() => {
+                        loadJobs();
+                        loadExecutors();
+                    }, refreshIntervalValue.value * 1000);
+                }
+            };
+
+            // 添加更新刷新间隔的函数
+            const updateRefreshInterval = (value) => {
+                if (autoRefresh.value) {
+                    // 如果当前正在自动刷新，重新启动定时器
+                    startAutoRefresh();
+                }
+            };
+
+            // 停止定时刷新
+            const stopAutoRefresh = () => {
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                    refreshInterval = null;
+                }
+            };
+
+            // 在 onMounted 中启动定时刷新
+            onMounted(() => {
+                loadJobs();
+                loadExecutors();
+                // 只在自动刷新开启时启动定时器
+                if (autoRefresh.value) {
+                    startAutoRefresh();
+                }
+            });
+
+            // 添加一个组件卸载前的清理函数
+            onBeforeUnmount(() => {
+                stopAutoRefresh(); // 清除定时器
+            });
+
+            // 在 setup() 中添加响应式变量和方法
+            const autoRefresh = ref(true);
+
+            const toggleAutoRefresh = (value) => {
+                if (value) {
+                    startAutoRefresh();
+                } else {
+                    stopAutoRefresh();
+                }
+            };
 
             // 加载任务列表
             const loadJobs = async () => {
@@ -399,6 +593,8 @@
                         return '执行异常';
                     case 4:
                         return '已取消';
+                    case 5:
+                        return '禁用';
                     default:
                         return '未知';
                 }
@@ -458,6 +654,12 @@
             const viewExecutorDetail = (executor) => {
                 selectedExecutor.value = executor;
                 executorDetailDialogVisible.value = true;
+            };
+
+            // 查看任务详情
+            const viewJobDetail = (job) => {
+                selectedJob.value = job;
+                jobDetailDialogVisible.value = true;
             };
 
             // 操作任务（启动、暂停、删除）
@@ -548,6 +750,10 @@
 
             return {
                 jobs,
+                jobDetailDialogVisible,
+                selectedJob,
+                editJob,
+                viewJobDetail,
                 executors,
                 loading,
                 executorLoading,
@@ -572,6 +778,10 @@
                 handleCurrentChange,
                 handleExecutorSizeChange,
                 handleExecutorCurrentChange,
+                refreshIntervalValue,
+                updateRefreshInterval,
+                autoRefresh,
+                toggleAutoRefresh,
                 Delete,
                 Refresh,
                 VideoPlay,
