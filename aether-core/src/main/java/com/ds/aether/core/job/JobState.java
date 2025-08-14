@@ -33,8 +33,8 @@ public class JobState {
     public static final Integer CANCEL = 4;
 
     /**
-     * 调度中
+     * 禁用
      */
-//    public static final Integer SCHEDULING = 5;
+    public static final Integer DISABLED = 5;
 
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -48,10 +49,6 @@ public class JobInfoServiceImpl implements JobInfoService {
         jobInfoMap.forEach((jobName, jobInfo) -> {
             Bson condition = Filters.and(Filters.eq("jobName", jobName), Filters.eq("clientName", jobInfo.getString("clientName")));
             mongoRepo.saveOrUpdate(TABLE_NAME, condition, Document.parse(jobInfo.toJSONString()));
-            String cron = jobInfo.getString("cron");
-            if (StrUtil.isNotBlank(cron)) {
-                schedulerContext.schedule(cron, jobName);
-            }
         });
         return Result.ok();
     }
@@ -61,13 +58,7 @@ public class JobInfoServiceImpl implements JobInfoService {
         String jobName = param.getJobName();
         String appName = param.getAppName();
         Bson condition = Filters.and(Filters.eq("jobName", jobName), Filters.eq("appName", appName));
-//        param.setStatus(JobState.NOT_EXECUTED);
         mongoRepo.saveOrUpdate(TABLE_NAME, condition, Document.parse(JSON.toJSONString(param)));
-
-        String cronExpression = param.getCronExpression();
-        if (StrUtil.isNotBlank(cronExpression)) {
-            schedulerContext.schedule(cronExpression, jobName);
-        }
         return Result.ok("添加成功!");
     }
 
@@ -162,7 +153,9 @@ public class JobInfoServiceImpl implements JobInfoService {
         mongoRepo.updateOne(TABLE_NAME, Filters.and(Filters.eq("jobName", jobName)), new Document("$set", updateDoc));
 
         // 任务上报记录
-        mongoRepo.insert("job_exec_log", Document.parse(JSON.toJSONString(param)));
+        Document log = Document.parse(JSON.toJSONString(param));
+        log.put("reportTime", DateUtil.now());
+        mongoRepo.insert("job_exec_log", log);
         return Result.ok("OK");
     }
 

@@ -21,9 +21,15 @@ public class PageController {
     }
 
     @GetMapping("/add-job")
-    public String addPage(Model model) {
+    public String addJobPage(Model model) {
         model.addAttribute("title", "添加任务");
         return "add-job";
+    }
+
+    @GetMapping("/edit-job")
+    public String editJob(Model model) {
+        model.addAttribute("title", "编辑任务");
+        return "edit-job";
     }
 
 }

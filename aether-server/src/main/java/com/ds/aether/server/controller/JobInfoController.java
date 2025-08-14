@@ -17,6 +17,7 @@ import com.ds.aether.server.service.JobInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,10 +52,10 @@ public class JobInfoController {
         return jobInfoService.reportState(param);
     }
 
-    @PostMapping("add")
-    public Result<String> add(@RequestBody AddJobParam param) {
+    @PostMapping("saveOrUpdate")
+    public Result<String> saveOrUpdate(@RequestBody AddJobParam param) {
         log.info("添加任务信息参数：{}", param);
-        return jobInfoService.add(param);
+        return jobInfoService.saveOrUpdate(param);
     }
 
     @PostMapping("start/{jobName}")
@@ -73,10 +74,21 @@ public class JobInfoController {
         return jobInfoService.schedule(jobName);
     }
 
+    @PostMapping("cancel/{jobName}")
+    public Result<String> cancel(@PathVariable String jobName) {
+        return jobInfoService.cancel(jobName);
+    }
+
     @DeleteMapping("delete/{jobName}")
     public Result<String> delete(@PathVariable String jobName) {
         log.info("删除任务信息参数：{}", jobName);
         return jobInfoService.delete(jobName);
+    }
+
+    @GetMapping("detail/{jobName}")
+    public Result<JSONObject> detail(@PathVariable String jobName) {
+        log.info("任务详情参数：{}", jobName);
+        return jobInfoService.detail(jobName);
     }
 
     /**

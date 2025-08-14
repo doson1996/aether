@@ -148,7 +148,7 @@
                         submitLoading.value = true;
                         try {
                             const response = await axios.post(
-                                `${API_BASE_URL}/job-info/add`,
+                                `${API_BASE_URL}/job-info/saveOrUpdate`,
                                 jobForm
                             );
 

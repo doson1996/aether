@@ -31,7 +31,7 @@ public interface JobInfoService {
      * @param param
      * @return
      */
-    Result<String> add(AddJobParam param);
+    Result<String> saveOrUpdate(AddJobParam param);
 
     /**
      * 获取任务列表
@@ -73,4 +73,13 @@ public interface JobInfoService {
      */
     Result<String> schedule(String jobName);
 
+    /**
+     * 取消任务
+     *
+     * @param jobName
+     * @return
+     */
+    Result<String> cancel(String jobName);
+
+    Result<JSONObject> detail(String jobName);
 }
