@@ -147,7 +147,7 @@ public class JobInfoServiceImpl implements JobInfoService {
         result.put("completed", mongoRepo.count(TABLE_NAME, Filters.eq("status", JobState.COMPLETED)));
         result.put("running", mongoRepo.count(TABLE_NAME, Filters.eq("status", JobState.RUNNING)));
         result.put("error", mongoRepo.count(TABLE_NAME, Filters.eq("status", JobState.ERROR)));
-        result.put("scheduling ", schedulerContext.getScheduledTaskCount());
+        result.put("scheduling", schedulerContext.getScheduledTaskCount());
         return Result.okData(result);
     }
 

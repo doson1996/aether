@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class SchedulerContext implements Scheduler, InitializingBean, DisposableBean {
 
-    @Value("${aether.server.scheduler.type:cronScheduler}")
+    @Value("${aether.server.scheduler.type:standaloneScheduler}")
     private String schedulerType;
 
     @Override

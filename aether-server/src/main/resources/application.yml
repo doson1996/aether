@@ -40,7 +40,8 @@ aether:
     executor:
       selector:
         type: poll
-
+    scheduler:
+        type: distributedCronScheduler
 management:
   endpoints:
     web:

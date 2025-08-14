@@ -217,14 +217,28 @@
 
                             <el-card>
                                 <el-table :data="executors" style="width: 100%" v-loading="executorLoading">
-                                    <el-table-column prop="appName" label="应用名称" width="150"></el-table-column>
+                                    <el-table-column prop="appName" label="应用名称" width="200"></el-table-column>
                                     <el-table-column prop="name" label="执行器名称" width="300"></el-table-column>
-                                    <el-table-column prop="host" label="地址" width="150"></el-table-column>
-                                    <el-table-column prop="status" label="状态" width="120">
+                                    <el-table-column prop="host" label="地址" width="200"></el-table-column>
+                                    <el-table-column prop="status" label="状态" width="150">
                                         <template #default="scope">
                                             <el-tag :type="getExecutorStatusType(scope.row.status)">
                                                 {{ getExecutorStatusText(scope.row.status) }}
                                             </el-tag>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="status" label="启/禁用" width="200">
+                                        <template #default="scope">
+                                            <el-switch
+                                                    v-model="scope.row.disabled"
+                                                    :active-value="1"
+                                                    :inactive-value="0"
+                                                    active-text="启用"
+                                                    inactive-text="禁用"
+                                                    active-color="#13ce66"
+                                                    inactive-color="#ff4949"
+                                                    @change="handleExecutorStatusChange(scope.row)">
+                                            </el-switch>
                                         </template>
                                     </el-table-column>
                                     <el-table-column label="操作" width="150">
@@ -419,7 +433,8 @@
                 running: 0,
                 cancel: 0,
                 error: 0,
-                completed: 0
+                completed: 0,
+                scheduling: 0
             });
 
             // 编辑任务
@@ -561,7 +576,6 @@
                 if (response.data.success) {
                     const statisticsData = response.data.data;
                     statistics.value.total = statisticsData.total;
-                    // 实际项目中应该从后端获取准确统计信息
                     statistics.value.notExecuted = statisticsData.notExecuted || 0;
                     statistics.value.running = statisticsData.running || 0;
                     statistics.value.completed = statisticsData.completed || 0;
@@ -660,6 +674,27 @@
             const viewExecutorDetail = (executor) => {
                 selectedExecutor.value = executor;
                 executorDetailDialogVisible.value = true;
+            };
+
+            // 处理执行器状态切换
+            const handleExecutorStatusChange = async (executor) => {
+                try {
+                    const operation = executor.disabled === 1 ? 'enable' : 'disable';
+                    const response = await axios.post(`${API_BASE_URL}executor/update-disabled/${executor.name}`);
+
+                    if (response.data.success) {
+                        showMessage(`${response.data.message}`, 'success');
+                        loadExecutors(); // 重新加载执行器列表以确保状态同步
+                    } else {
+                        // 如果操作失败，恢复原来的状态
+                        executor.status = executor.disabled === 1 ? 0 : 1;
+                        showMessage(`${response.data.message}`, 'success');
+                    }
+                } catch (error) {
+                    // 如果请求失败，恢复原来的状态
+                    executor.disabled = executor.disabled === 1 ? 0 : 1;
+                    showMessage(`请求失败: ${error.message}`, 'error');
+                }
             };
 
             // 查看任务详情
@@ -764,6 +799,7 @@
                 executorPagination,
                 executorDetailDialogVisible,
                 selectedExecutor,
+                handleExecutorStatusChange,
                 loadJobs,
                 loadExecutors,
                 getJobStatusType,

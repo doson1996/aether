@@ -7,15 +7,13 @@ import javax.annotation.Resource;
 import com.alibaba.fastjson2.JSONObject;
 import com.ds.aether.core.common.Page;
 import com.ds.aether.core.constant.ServerConstant;
-import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.ReportStateParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.server.AddJobParam;
+import com.ds.aether.server.job.ExecJobHelper;
 import com.ds.aether.server.model.dto.BasePageParam;
-import com.ds.aether.server.service.ExecutorService;
 import com.ds.aether.server.service.JobInfoService;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +36,7 @@ public class JobInfoController {
     private JobInfoService jobInfoService;
 
     @Resource
-    private ExecutorService executorService;
+    private ExecJobHelper execJobHelper;
 
     @GetMapping("statistics")
     public Result<JSONObject> statistics() {
@@ -65,13 +63,7 @@ public class JobInfoController {
 
     @PostMapping("start/{jobName}")
     public Result<String> start(@PathVariable String jobName) {
-        ExecJobParam execJobParam = new ExecJobParam();
-        execJobParam.setJobName(jobName);
-
-        // 携带任务参数
-        Document jobInfo = jobInfoService.findOne(jobName);
-        execJobParam.setParams(jobInfo.getString("jobParams"));
-        return executorService.execJob(execJobParam);
+        return execJobHelper.start(jobName);
     }
 
     @PostMapping("schedule/{jobName}")

@@ -10,8 +10,10 @@ import com.ds.aether.core.model.server.ExecutorInfo;
 import com.ds.aether.server.model.dto.BasePageParam;
 import com.ds.aether.server.service.ExecutorService;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,6 +68,11 @@ public class ExecutorController {
     @PostMapping("heartbeat")
     public Result<String> heartbeat(@RequestBody HeartbeatParam param) {
         return executorService.heartbeat(param);
+    }
+
+    @PostMapping("update-disabled/{name}")
+    public Result<String> updateDisabled(@PathVariable String name) {
+        return executorService.updateDisabled(name);
     }
 
 }

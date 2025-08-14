@@ -64,4 +64,13 @@ public interface ExecutorService {
     Result<String> heartbeat(HeartbeatParam param);
 
     Result<Page> page(BasePageParam param);
+
+    /**
+     * 禁/启用执行器
+     *
+     * @param name
+     * @return
+     */
+    Result<String> updateDisabled(String name);
+
 }

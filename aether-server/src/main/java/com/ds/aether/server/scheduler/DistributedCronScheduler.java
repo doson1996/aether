@@ -1,6 +1,7 @@
 package com.ds.aether.server.scheduler;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -8,8 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ds.aether.core.context.SpringContext;
-import com.ds.aether.core.model.ExecJobParam;
-import com.ds.aether.server.service.ExecutorService;
+import com.ds.aether.server.job.ExecJobHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -76,13 +76,30 @@ public class DistributedCronScheduler implements Scheduler {
     @Override
     public boolean isScheduled(String jobName) {
         String jobInfoKey = JOB_INFO_PREFIX + jobName;
-        return redisTemplate.hasKey(jobInfoKey);
+        Object cronObj = redisTemplate.opsForHash().get(jobInfoKey, "cron");
+        return cronObj != null && !cronObj.toString().isEmpty();
     }
 
     @Override
     public Long getScheduledTaskCount() {
-        String nodeKey = NODE_PREFIX + nodeId;
-        Long count = redisTemplate.opsForHash().size(nodeKey);
+        Set<String> jobKeys = redisTemplate.keys(JOB_INFO_PREFIX + "*");
+        if (jobKeys.isEmpty()) {
+            return 0L;
+        }
+
+        long count = 0;
+        for (String jobKey : jobKeys) {
+            try {
+                // 检查任务是否包含必要的调度信息
+                Object cronObj = redisTemplate.opsForHash().get(jobKey, "cron");
+                if (cronObj != null && !cronObj.toString().isEmpty()) {
+                    count++;
+                }
+            } catch (Exception e) {
+                // 如果出现类型错误，跳过该键
+                log.debug("检查任务时出错: {}", jobKey, e);
+            }
+        }
         return count;
     }
 
@@ -268,12 +285,9 @@ public class DistributedCronScheduler implements Scheduler {
      */
     private void executeJob(String jobName) {
         try {
-            ExecJobParam execJobParam = new ExecJobParam();
-            execJobParam.setJobName(jobName);
-            ExecutorService executorService = SpringContext.getContext().getBean(ExecutorService.class);
-            executorService.execJob(execJobParam);
             log.debug("执行分布式任务：{}", jobName);
-
+            ExecJobHelper execJobHelper = SpringContext.getContext().getBean(ExecJobHelper.class);
+            execJobHelper.start(jobName);
             // 更新任务执行状态
             String jobInfoKey = JOB_INFO_PREFIX + jobName;
             redisTemplate.opsForHash().put(jobInfoKey, "last_execution", LocalDateTime.now().toString());

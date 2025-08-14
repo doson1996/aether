@@ -76,4 +76,9 @@ public class ExecutorInfo {
      */
     private String registerTime;
 
+    /**
+     * 是否禁用
+     */
+    private Integer disabled;
+
 }

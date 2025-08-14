@@ -11,8 +11,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ds.aether.core.context.SpringContext;
 import com.ds.aether.core.model.ExecJobParam;
+import com.ds.aether.server.job.ExecJobHelper;
 import com.ds.aether.server.service.ExecutorService;
+import com.ds.aether.server.service.JobInfoService;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 
 /**
  * @author ds
@@ -117,11 +120,8 @@ public class StandaloneScheduler implements Scheduler {
 
         return scheduler.schedule(() -> {
             try {
-                ExecJobParam execJobParam = new ExecJobParam();
-                execJobParam.setJobName(jobName);
-                ExecutorService executorService = SpringContext.getContext().getBean(ExecutorService.class);
-                executorService.execJob(execJobParam);
-                log.debug("执行任务：" + jobName);
+                ExecJobHelper execJobHelper = SpringContext.getContext().getBean(ExecJobHelper.class);
+                execJobHelper.start(jobName);
             } finally {
                 // 安排下一次执行
                 if (running.get() && scheduledTasks.containsKey(jobName)) {

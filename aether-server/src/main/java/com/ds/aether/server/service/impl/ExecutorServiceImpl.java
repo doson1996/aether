@@ -4,11 +4,11 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ds.aether.core.common.Page;
 import com.ds.aether.core.constant.ExecutorStatus;
+import com.ds.aether.core.constant.YesOrNo;
 import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.HeartbeatParam;
 import com.ds.aether.core.model.Result;
@@ -141,6 +141,23 @@ public class ExecutorServiceImpl implements ExecutorService {
     @Override
     public Result<Page> page(BasePageParam param) {
         return Result.okData(executorStorage.page(param));
+    }
+
+    @Override
+    public Result<String> updateDisabled(String name) {
+        if (StrUtil.isBlank(name)) {
+            return Result.failWithParameterError("执行器名称不能为空!");
+        }
+
+        ExecutorInfo executorInfo = executorStorage.find(name);
+
+        if (executorInfo == null) {
+            return Result.fail(ResultCode.EXECUTOR_NOT_EXIST, "执行器不存在!!");
+        }
+
+        executorInfo.setDisabled(YesOrNo.YES.equals(executorInfo.getDisabled()) ? YesOrNo.NO : YesOrNo.YES);
+        executorStorage.update(executorInfo);
+        return Result.ok( "更新执行器禁用状态成功!");
     }
 
 }

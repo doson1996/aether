@@ -29,7 +29,7 @@ public class SchedulerConfig {
     }
 
     @Bean
-    public StandaloneScheduler cronScheduler() {
+    public StandaloneScheduler standaloneScheduler() {
         return new StandaloneScheduler();
     }
 

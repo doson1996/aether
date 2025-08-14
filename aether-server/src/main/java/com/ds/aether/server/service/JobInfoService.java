@@ -83,6 +83,7 @@ public interface JobInfoService {
 
     /**
      * 获取任务详情
+     *
      * @param jobName
      * @return
      */
@@ -90,6 +91,7 @@ public interface JobInfoService {
 
     /**
      * 任务统计
+     *
      * @return
      */
     Result<JSONObject> statistics();
