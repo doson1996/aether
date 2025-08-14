@@ -9,7 +9,7 @@ spring:
 
 aether:
   server:
-    host: localhost:8081
+    host: localhost:23843
     context-path: /api
   client:
     #name: executor1

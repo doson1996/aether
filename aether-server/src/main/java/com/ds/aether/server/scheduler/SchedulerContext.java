@@ -52,6 +52,11 @@ public class SchedulerContext implements Scheduler, InitializingBean, Disposable
         return getScheduler().isScheduled(jobName);
     }
 
+    @Override
+    public Long getScheduledTaskCount() {
+        return getScheduler().getScheduledTaskCount();
+    }
+
     private Scheduler getScheduler() {
         return SpringContext.getContext().getBean(schedulerType, Scheduler.class);
     }
