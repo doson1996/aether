@@ -65,7 +65,7 @@
                             </el-card>
                         </div>
                         <div class="col-md-2">
-                            <el-card class="text-white bg-success">
+                            <el-card class="text-white bg-info">
                                 <div class="card-body">
                                     <h5 class="card-title">运行中</h5>
                                     <h2>{{ statistics.running }}</h2>
@@ -73,7 +73,7 @@
                             </el-card>
                         </div>
                         <div class="col-md-2">
-                            <el-card class="text-white bg-info">
+                            <el-card class="text-white bg-success">
                                 <div class="card-body">
                                     <h5 class="card-title">已完成</h5>
                                     <h2>{{ statistics.completed }}</h2>
@@ -554,17 +554,6 @@
                     executorLoading.value = false;
                 }
             };
-
-
-            if (response.data.success) {
-                const jobData = response.data.data;
-                jobForm.value = {
-                    ...jobData,
-                    status: jobData.status || 1
-                };
-            } else {
-                showMessage('获取任务详情失败: ' + response.data.message, 'error');
-            }
 
             // 更新统计信息
             const updateStatistics = async () => {
