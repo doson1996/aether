@@ -98,6 +98,7 @@ public class ExecutorServiceImpl implements ExecutorService {
         ExecutorInfo executorInfo = new ExecutorInfo(name, host, param.getContextPath(), ExecutorStatus.ONLINE);
         executorInfo.setAppName(param.getAppName());
         executorInfo.setRegisterTime(DateUtil.now());
+        executorInfo.setDisabled(YesOrNo.NO);
         executorStorage.add(executorInfo);
         return Result.ok("注册执行器成功!");
     }

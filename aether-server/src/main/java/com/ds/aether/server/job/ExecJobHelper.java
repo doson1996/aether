@@ -8,7 +8,6 @@ import com.ds.aether.server.service.ExecutorService;
 import com.ds.aether.server.service.JobInfoService;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * @author ds
@@ -24,7 +23,7 @@ public class ExecJobHelper {
     @Resource
     private ExecutorService executorService;
 
-    public Result<String> start(@PathVariable String jobName) {
+    public Result<String> start(String jobName) {
         ExecJobParam execJobParam = new ExecJobParam();
         execJobParam.setJobName(jobName);
 

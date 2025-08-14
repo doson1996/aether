@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import cn.hutool.core.util.PageUtil;
 import com.ds.aether.core.common.Page;
 import com.ds.aether.core.constant.ExecutorStatus;
+import com.ds.aether.core.constant.YesOrNo;
 import com.ds.aether.core.model.server.ExecutorInfo;
 import com.ds.aether.server.model.dto.BasePageParam;
 import org.springframework.stereotype.Repository;
@@ -25,7 +25,8 @@ public class MemoryExecutorStorage implements ExecutorStorage {
     @Override
     public Map<String, ExecutorInfo> findAvailableExecutors() {
         Map<String, ExecutorInfo> result = EXECUTORS.entrySet().stream()
-                .filter(entry -> !ExecutorStatus.OFFLINE.equals(entry.getValue().getStatus()))
+                .filter(entry -> !ExecutorStatus.OFFLINE.equals(entry.getValue().getStatus())
+                        && YesOrNo.NO.equals(entry.getValue().getDisabled()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         return result;
     }

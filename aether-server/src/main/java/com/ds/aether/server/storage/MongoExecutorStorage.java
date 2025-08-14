@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import com.alibaba.fastjson2.JSON;
 import com.ds.aether.core.common.Page;
 import com.ds.aether.core.constant.ExecutorStatus;
+import com.ds.aether.core.constant.YesOrNo;
 import com.ds.aether.core.model.server.ExecutorInfo;
 import com.ds.aether.server.model.dto.BasePageParam;
 import com.ds.aether.server.repo.MongoRepo;
@@ -36,7 +37,8 @@ public class MongoExecutorStorage implements ExecutorStorage {
     public Map<String, ExecutorInfo> findAvailableExecutors() {
         return mongoRepo.list(TABLE, null, null, null, null, true).stream()
                 .map(document -> JSON.parseObject(document.toJson(), ExecutorInfo.class))
-                .filter(entry -> !ExecutorStatus.OFFLINE.equals(entry.getStatus()))
+                .filter(entry -> ExecutorStatus.ONLINE.equals(entry.getStatus())
+                        && YesOrNo.NO.equals(entry.getDisabled()))
                 .collect(Collectors.toMap(ExecutorInfo::getName, executorInfo -> executorInfo));
     }
 

@@ -228,7 +228,7 @@
                             <el-card>
                                 <el-table :data="executors" style="width: 100%" v-loading="executorLoading">
                                     <el-table-column prop="appName" label="应用名称" width="200"></el-table-column>
-                                    <el-table-column prop="name" label="执行器名称" width="300"></el-table-column>
+                                    <el-table-column prop="name" label="执行器名称" width="350"></el-table-column>
                                     <el-table-column prop="host" label="地址" width="200"></el-table-column>
                                     <el-table-column prop="status" label="状态" width="150">
                                         <template #default="scope">
@@ -241,8 +241,8 @@
                                         <template #default="scope">
                                             <el-switch
                                                     v-model="scope.row.disabled"
-                                                    :active-value="1"
-                                                    :inactive-value="0"
+                                                    :active-value="0"
+                                                    :inactive-value="1"
                                                     active-text="启用"
                                                     inactive-text="禁用"
                                                     active-color="#13ce66"
