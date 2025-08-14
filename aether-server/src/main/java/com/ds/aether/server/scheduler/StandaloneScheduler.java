@@ -17,10 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author ds
  * @date 2025/7/31
- * @description
+ * @description 单机调度
  */
 @Slf4j
-public class CronScheduler implements Scheduler {
+public class StandaloneScheduler implements Scheduler {
 
     private final ScheduledExecutorService scheduler;
 
@@ -29,7 +29,7 @@ public class CronScheduler implements Scheduler {
     // 用于存储任务的Future，以便可以取消任务
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
-    public CronScheduler() {
+    public StandaloneScheduler() {
         this.scheduler = Executors.newScheduledThreadPool(10);
     }
 
@@ -168,8 +168,13 @@ public class CronScheduler implements Scheduler {
         return scheduledTasks.containsKey(jobName);
     }
 
+    @Override
+    public Long getScheduledTaskCount() {
+        return (long) scheduledTasks.size();
+    }
+
     public static void main(String[] args) {
-        CronScheduler scheduler = new CronScheduler();
+        StandaloneScheduler scheduler = new StandaloneScheduler();
         scheduler.start();
 
         // 每分钟执行一次的任务

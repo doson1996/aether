@@ -140,6 +140,19 @@ public class JobInfoServiceImpl implements JobInfoService {
     }
 
     @Override
+    public Result<JSONObject> statistics() {
+        JSONObject result = new JSONObject();
+        result.put("total", mongoRepo.count(TABLE_NAME, null));
+        result.put("notExecuted", mongoRepo.count(TABLE_NAME, Filters.eq("status", JobState.NOT_EXECUTED)));
+        result.put("completed", mongoRepo.count(TABLE_NAME, Filters.eq("status", JobState.COMPLETED)));
+        result.put("running", mongoRepo.count(TABLE_NAME, Filters.eq("status", JobState.RUNNING)));
+        result.put("error", mongoRepo.count(TABLE_NAME, Filters.eq("status", JobState.ERROR)));
+        result.put("scheduled", schedulerContext.getScheduledTaskCount());
+
+        return null;
+    }
+
+    @Override
     public Result<String> reportState(ReportStateParam param) {
         String jobName = param.getJobName();
 

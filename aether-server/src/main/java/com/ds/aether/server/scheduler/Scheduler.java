@@ -38,4 +38,11 @@ public interface Scheduler {
      */
     boolean isScheduled(String jobName);
 
+    /**
+     * 获取正在调度的任务数量
+     *
+     * @return
+     */
+    Long getScheduledTaskCount();
+
 }

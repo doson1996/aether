@@ -18,7 +18,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 /**
  * @author ds
  * @date 2025/8/13
- * @description
+ * @description 分布式任务调度器
  */
 @Slf4j
 public class DistributedCronScheduler implements Scheduler {
@@ -77,6 +77,13 @@ public class DistributedCronScheduler implements Scheduler {
     public boolean isScheduled(String jobName) {
         String jobInfoKey = JOB_INFO_PREFIX + jobName;
         return redisTemplate.hasKey(jobInfoKey);
+    }
+
+    @Override
+    public Long getScheduledTaskCount() {
+        String nodeKey = NODE_PREFIX + nodeId;
+        Long count = redisTemplate.opsForHash().size(nodeKey);
+        return count;
     }
 
     /**

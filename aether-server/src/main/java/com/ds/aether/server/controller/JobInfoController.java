@@ -40,6 +40,11 @@ public class JobInfoController {
     @Resource
     private ExecutorService executorService;
 
+    @GetMapping("statistics")
+    public Result<JSONObject> statistics() {
+        return jobInfoService.statistics();
+    }
+
     @PostMapping(ServerConstant.JOB_INFO_REGISTER_PATH)
     public Result<String> register(@RequestBody Map<String, JSONObject> jobInfoMap) {
         log.info("任务信息：{}", jobInfoMap);

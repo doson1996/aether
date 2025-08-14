@@ -83,8 +83,8 @@
                         <div class="col-md-2">
                             <el-card class="text-white bg-warning">
                                 <div class="card-body">
-                                    <h5 class="card-title">已取消</h5>
-                                    <h2>{{ statistics.cancel }}</h2>
+                                    <h5 class="card-title">调度中</h5>
+                                    <h2>{{ statistics.scheduling }}</h2>
                                 </div>
                             </el-card>
                         </div>
@@ -521,7 +521,7 @@
                     if (response.data.success) {
                         jobs.value = response.data.data.data || [];
                         pagination.total = response.data.data.total || 0;
-                        updateStatistics(jobs.value);
+                        updateStatistics();
                     } else {
                         showMessage('获取任务列表失败: ' + response.data.message, 'error');
                     }
@@ -555,15 +555,32 @@
                 }
             };
 
+
+            if (response.data.success) {
+                const jobData = response.data.data;
+                jobForm.value = {
+                    ...jobData,
+                    status: jobData.status || 1
+                };
+            } else {
+                showMessage('获取任务详情失败: ' + response.data.message, 'error');
+            }
+
             // 更新统计信息
-            const updateStatistics = (jobsData) => {
-                statistics.value.total = pagination.total;
-                // 实际项目中应该从后端获取准确统计信息
-                statistics.value.notExecuted = jobsData.filter(job => job.status === 0).length;
-                statistics.value.running = jobsData.filter(job => job.status === 1).length;
-                statistics.value.completed = jobsData.filter(job => job.status === 2).length;
-                statistics.value.error = jobsData.filter(job => job.status === 3).length;
-                statistics.value.cancel = jobsData.filter(job => job.status === 4).length;
+            const updateStatistics = async () => {
+                const response = await axios.get(`${API_BASE_URL}job-info/statistics`);
+                if (response.data.success) {
+                    const statisticsData = response.data.data;
+                    statistics.value.total = statisticsData.total;
+                    // 实际项目中应该从后端获取准确统计信息
+                    statistics.value.notExecuted = statisticsData.notExecuted || 0;
+                    statistics.value.running = statisticsData.running || 0;
+                    statistics.value.completed = statisticsData.completed || 0;
+                    statistics.value.error = statisticsData.error || 0;
+                    statistics.value.scheduling = statisticsData.scheduling || 0;
+                } else {
+                    showMessage('获取统计信息失败: ' + response.data.message, 'error');
+                }
             };
 
             // 获取任务状态对应的标签类型
@@ -685,16 +702,11 @@
                 try {
                     const response = await axios({method, url});
                     if (response.data.success) {
-                        const operationText = {
-                            'start': '启动',
-                            'cancel': '取消',
-                            'delete': '删除'
-                        }[operation];
-
-                        showMessage(`任务${operationText}成功！`, 'success');
+                        showMessage(`${response.data.message}`, 'success');
                         loadJobs(); // 重新加载任务列表
                     } else {
-                        showMessage(`任务${operation === 'start' ? '启动' : operation === 'pause' ? '取消' : '删除'}失败: ${response.data.message}`, 'error');
+                        // showMessage(`任务${operation === 'start' ? '启动' : operation === 'cancel' ? '取消' : '删除'}失败: ${response.data.message}`, 'error');
+                        showMessage(`${response.data.message}`, 'error');
                     }
                 } catch (error) {
                     showMessage(`请求失败: ${error.message}`, 'error');

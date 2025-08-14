@@ -81,5 +81,17 @@ public interface JobInfoService {
      */
     Result<String> cancel(String jobName);
 
+    /**
+     * 获取任务详情
+     * @param jobName
+     * @return
+     */
     Result<JSONObject> detail(String jobName);
+
+    /**
+     * 任务统计
+     * @return
+     */
+    Result<JSONObject> statistics();
+
 }

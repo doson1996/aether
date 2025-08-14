@@ -1,6 +1,6 @@
 package com.ds.aether.server.config;
 
-import com.ds.aether.server.scheduler.CronScheduler;
+import com.ds.aether.server.scheduler.StandaloneScheduler;
 import com.ds.aether.server.scheduler.DistributedCronScheduler;
 import com.ds.aether.server.scheduler.SchedulerContext;
 import org.springframework.context.annotation.Bean;
@@ -29,8 +29,8 @@ public class SchedulerConfig {
     }
 
     @Bean
-    public CronScheduler cronScheduler() {
-        return new CronScheduler();
+    public StandaloneScheduler cronScheduler() {
+        return new StandaloneScheduler();
     }
 
 }
