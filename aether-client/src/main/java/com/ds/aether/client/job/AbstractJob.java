@@ -1,8 +1,12 @@
-package com.ds.aether.core.job;
+package com.ds.aether.client.job;
+
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
 import com.ds.aether.core.client.ServerClient;
+import com.ds.aether.core.job.JobState;
+import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.JobResult;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,18 +42,20 @@ public abstract class AbstractJob {
     /**
      * 执行任务
      */
-    public void work() {
+    public void work(ExecJobParam execJobParam) {
+        String jobId = UUID.randomUUID().toString();
+        String executorName = execJobParam.getExecutorName();
         try {
             // 任务运行中上报
-            serverClient.reportState(currentJobName(), null, JobState.RUNNING, "运行开始", null);
+            serverClient.reportState(jobId, currentJobName(), executorName, JobState.RUNNING, "运行开始", null);
             JobResult result = execute();
             // 设置任务执行结果
             setJobResult(result);
-            serverClient.reportState(currentJobName(), null, JobState.COMPLETED, "运行结束", jobResult);
+            serverClient.reportState(jobId, currentJobName(), executorName, JobState.COMPLETED, "运行结束", jobResult);
         } catch (Exception e) {
-            log.error("任务【{}】执行发生异常：", currentJobName(), e);
+            log.error("执行器【{}】执行任务【{}】发生异常：", executorName, currentJobName(), e);
             // 异常上报
-            exceptionReport(currentJobName(), e);
+            exceptionReport(jobId, currentJobName(), executorName, e);
         } finally {
             log.info("任务【{}】执行完成", currentJobName());
         }
@@ -60,8 +66,8 @@ public abstract class AbstractJob {
      *
      * @param e
      */
-    private void exceptionReport(String jobName, Exception e) {
-        serverClient.reportState(jobName, null, JobState.ERROR, e.getMessage(), null);
+    private void exceptionReport(String jobId, String jobName, String executorName, Exception e) {
+        serverClient.reportState(jobId, jobName, executorName, JobState.ERROR, e.getMessage(), null);
     }
 
     /**

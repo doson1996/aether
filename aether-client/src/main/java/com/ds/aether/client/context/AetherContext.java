@@ -1,6 +1,6 @@
 package com.ds.aether.client.context;
 
-import com.ds.aether.core.job.JobInfo;
+import com.ds.aether.client.job.JobInfo;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

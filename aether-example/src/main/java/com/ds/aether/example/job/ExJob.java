@@ -1,7 +1,7 @@
 package com.ds.aether.example.job;
 
-import com.ds.aether.core.job.AbstractJob;
-import com.ds.aether.core.job.Job;
+import com.ds.aether.client.job.AbstractJob;
+import com.ds.aether.client.job.Job;
 import com.ds.aether.core.model.JobResult;
 import lombok.extern.slf4j.Slf4j;
 

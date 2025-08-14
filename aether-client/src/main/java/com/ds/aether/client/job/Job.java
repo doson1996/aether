@@ -1,4 +1,4 @@
-package com.ds.aether.core.job;
+package com.ds.aether.client.job;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

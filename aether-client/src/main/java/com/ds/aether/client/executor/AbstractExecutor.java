@@ -6,7 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.ds.aether.client.context.AetherContext;
-import com.ds.aether.core.job.JobInfo;
+import com.ds.aether.client.job.JobInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**

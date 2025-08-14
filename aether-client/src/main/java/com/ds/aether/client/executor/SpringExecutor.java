@@ -13,8 +13,9 @@ import com.ds.aether.client.context.AetherContext;
 import com.ds.aether.client.job.SpringJobInfo;
 import com.ds.aether.core.client.ServerClient;
 import com.ds.aether.core.constant.ServerConstant;
-import com.ds.aether.core.job.Job;
-import com.ds.aether.core.job.JobInfo;
+import com.ds.aether.client.job.Job;
+import com.ds.aether.client.job.JobInfo;
+import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.core.model.Result;
 import com.ds.aether.core.model.ResultCode;
 import lombok.extern.slf4j.Slf4j;
@@ -128,7 +129,10 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
         }
         // 异步执行任务
         taskExecutor.execute(() -> {
-            jobInfo.execute(params);
+            ExecJobParam execJobParam = new ExecJobParam();
+            execJobParam.setParams(params);
+            execJobParam.setExecutorName(getClientName());
+            jobInfo.execute(execJobParam);
         });
 
         return Result.ok("任务【" + jobName + "】分配成功!");

@@ -14,18 +14,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReportStateParam {
 
-    public ReportStateParam(String jobName, Integer status, String message) {
+    public ReportStateParam(String jobId, String jobName, Integer status, String message) {
+        this.jobId = jobId;
         this.jobName = jobName;
         this.status = status;
         this.message = message;
     }
 
-    public ReportStateParam(String jobName, Integer status, String message, JobResult jobResult) {
+    public ReportStateParam(String jobId, String jobName, Integer status, String message, JobResult jobResult) {
+        this.jobId = jobId;
         this.jobName = jobName;
         this.status = status;
         this.message = message;
         this.jobResult = jobResult;
     }
+
+    /**
+     * 任务执行ID
+     */
+    private String jobId;
 
     private String jobName;
 

@@ -36,7 +36,7 @@ public class ServerClient implements Client {
         return "";
     }
 
-    public String reportState(String jobName, String executorName, Integer status, String message, JobResult jobResult) {
+    public String reportState(String jobId, String jobName, String executorName, Integer status, String message, JobResult jobResult) {
         String url = serverHost + ServerConstant.JOB_INFO_REPORT_STATE_FULL_PATH;
         ReportStateParam reportStateParam = new ReportStateParam(jobName, executorName, status, message, jobResult);
         return HttpUtil.post(url, JSONObject.toJSONString(reportStateParam));

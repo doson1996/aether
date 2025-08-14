@@ -1,8 +1,7 @@
 package com.ds.aether.client.job;
 
 import com.ds.aether.core.context.SpringContext;
-import com.ds.aether.core.job.AbstractJob;
-import com.ds.aether.core.job.JobInfo;
+import com.ds.aether.core.model.ExecJobParam;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -33,12 +32,12 @@ public class SpringJobInfo implements JobInfo {
     private String cron;
 
     @Override
-    public void execute(String params) {
+    public void execute(ExecJobParam execJobParam) {
         Object bean = SpringContext.getContext().getBean(beanName);
         if (bean instanceof AbstractJob) {
             AbstractJob job = (AbstractJob) bean;
-            job.setParams(params);
-            job.work();
+            job.setParams(execJobParam.getParams());
+            job.work(execJobParam);
         }
     }
 }
