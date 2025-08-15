@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * 使用示例
  * 1.添加@Job注解，指定任务名称
  * 2.继承AbstractJob，实现execute方法，执行任务逻辑
+ * 3.在http://localhost:23843/api/page/中添加任务
  */
 @Slf4j
 @Job(name = "job1")

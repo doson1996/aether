@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author ds
  * @date 2025/4/10
- * @description 执行异常任务
+ * @description 执行异常任务测试
  */
 @Slf4j
 @Job(name = "exJob")
