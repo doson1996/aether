@@ -2,7 +2,6 @@ package com.ds.aether.client.job;
 
 import com.ds.aether.core.context.SpringContext;
 import com.ds.aether.core.model.ExecJobParam;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -11,14 +10,15 @@ import lombok.Data;
  * @description
  */
 @Data
-@AllArgsConstructor
 public class SpringJobInfo implements JobInfo {
 
-    public SpringJobInfo(String jobName, String beanName, String clientName, String cron) {
+    public SpringJobInfo() {
+    }
+
+    public SpringJobInfo(String jobName, String beanName, String clientName) {
         this.jobName = jobName;
         this.beanName = beanName;
         this.clientName = clientName;
-        this.cron = cron;
     }
 
     public String jobName;
@@ -26,10 +26,6 @@ public class SpringJobInfo implements JobInfo {
     public String beanName;
 
     private String clientName;
-
-    private String methodName;
-
-    private String cron;
 
     @Override
     public void execute(ExecJobParam execJobParam) {
@@ -40,4 +36,5 @@ public class SpringJobInfo implements JobInfo {
             job.work(execJobParam);
         }
     }
+
 }

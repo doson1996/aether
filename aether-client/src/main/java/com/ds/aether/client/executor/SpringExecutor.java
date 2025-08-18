@@ -98,7 +98,7 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
             // 任务名
             String jobName = jobAnnotation.name();
 
-            // 如果没配置任务名，已beanName作为任务名
+            // 如果没配置任务名，以beanName作为任务名
             if (StrUtil.isBlank(jobName)) {
                 jobName = beanName;
             }
@@ -109,11 +109,8 @@ public class SpringExecutor extends AbstractExecutor implements ApplicationConte
                 log.warn("任务【{}】已存在,该bean【{}】跳过处理", jobName, beanName);
             }
 
-            // 任务执行表达式
-            String cron = jobAnnotation.cron();
-
             // 构建任务信息
-            JobInfo jobInfo = new SpringJobInfo(jobName, beanName, getClientName(), cron);
+            JobInfo jobInfo = new SpringJobInfo(jobName, beanName, getClientName());
             // 注册任务信息
             registerJobInfo(jobName, jobInfo);
         }
