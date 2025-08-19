@@ -11,10 +11,13 @@
             <i class="bi bi-clock-history"></i> Aether 任务调度系统
         </a>
         <div class="navbar-nav ms-auto">
+            <!-- 天气展示区域 -->
+            <span class="navbar-text ms-3" th:text="${weatherInfo ?: '天气信息获取中...'}"></span>
             <a class="nav-link" th:classappend="${currentPage == 'index' ? 'active' : ''}" href="/api/page/">首页</a>
             <a class="nav-link" th:classappend="${currentPage == 'add-job' ? 'active' : ''}" href="/api/page/add-job">添加任务</a>
         </div>
     </div>
 </nav>
+
 </body>
 </html>

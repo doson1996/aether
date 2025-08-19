@@ -1,5 +1,6 @@
 package com.ds.aether.server.controller;
 
+import com.ds.aether.server.util.WeatherUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ public class PageController {
     @GetMapping("/")
     public String indexPage(Model model) {
         model.addAttribute("title", "主页");
+        model.addAttribute("weatherInfo", WeatherUtil.getLiveWeather("重庆市"));
         return "index";
     }
 
