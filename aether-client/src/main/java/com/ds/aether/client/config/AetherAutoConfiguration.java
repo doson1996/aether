@@ -33,10 +33,14 @@ public class AetherAutoConfiguration {
     @Bean
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5); // 核心线程数
-        executor.setMaxPoolSize(10); // 最大线程数
-        executor.setQueueCapacity(100); // 队列容量
-        executor.setThreadNamePrefix("taskExecutor-"); // 线程名称前缀
+        // 核心线程数
+        executor.setCorePoolSize(5);
+        // 最大线程数
+        executor.setMaxPoolSize(10);
+        // 队列容量
+        executor.setQueueCapacity(100);
+        // 线程名称前缀
+        executor.setThreadNamePrefix("taskExecutor-");
         executor.initialize();
         return executor;
     }

@@ -40,9 +40,9 @@ public class DistributedCronScheduler implements Scheduler {
     // Redis中存储活跃节点的键
     private static final String NODE_PREFIX = "aether:node:";
 
-    public DistributedCronScheduler(RedisTemplate<String, String> redisTemplate) {
+    public DistributedCronScheduler(RedisTemplate<String, String> redisTemplate, Integer corePoolSize) {
         this.redisTemplate = redisTemplate;
-        this.scheduler = Executors.newScheduledThreadPool(10);
+        this.scheduler = Executors.newScheduledThreadPool(corePoolSize);
         this.coordinationScheduler = Executors.newSingleThreadScheduledExecutor();
         this.nodeId = UUID.randomUUID().toString();
     }
@@ -339,4 +339,5 @@ public class DistributedCronScheduler implements Scheduler {
             return null;
         }
     }
+
 }

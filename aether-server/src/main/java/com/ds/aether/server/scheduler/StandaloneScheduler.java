@@ -10,12 +10,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ds.aether.core.context.SpringContext;
-import com.ds.aether.core.model.ExecJobParam;
 import com.ds.aether.server.job.ExecJobHelper;
-import com.ds.aether.server.service.ExecutorService;
-import com.ds.aether.server.service.JobInfoService;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 
 /**
  * @author ds
@@ -32,8 +28,8 @@ public class StandaloneScheduler implements Scheduler {
     // 用于存储任务的Future，以便可以取消任务
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
-    public StandaloneScheduler() {
-        this.scheduler = Executors.newScheduledThreadPool(10);
+    public StandaloneScheduler(Integer corePoolSize) {
+        this.scheduler = Executors.newScheduledThreadPool(corePoolSize);
     }
 
     public void schedule(String cronExpression, Runnable task, String jobName) {
@@ -67,7 +63,8 @@ public class StandaloneScheduler implements Scheduler {
     public boolean cancel(String jobName) {
         ScheduledFuture<?> future = scheduledTasks.remove(jobName);
         if (future != null) {
-            future.cancel(false); // 不中断正在执行的任务
+            // 不中断正在执行的任务
+            future.cancel(false);
             return true;
         }
         return false;
@@ -171,34 +168,6 @@ public class StandaloneScheduler implements Scheduler {
     @Override
     public Long getScheduledTaskCount() {
         return (long) scheduledTasks.size();
-    }
-
-    public static void main(String[] args) {
-        StandaloneScheduler scheduler = new StandaloneScheduler();
-        scheduler.start();
-
-        // 每分钟执行一次的任务
-        scheduler.schedule("0 * * * * *", "每分钟任务执行");
-
-        // 每5秒执行一次的任务
-        scheduler.schedule("*/5 * * * * *", "每5秒任务执行");
-
-
-        // 10秒后取消"每5秒任务执行: "任务
-//        scheduler.scheduler.schedule(() -> {
-//            System.out.println("尝试取消任务: 每5秒任务执行: ");
-//            boolean cancelled = scheduler.cancel("每5秒任务执行");
-//            System.out.println("任务取消结果: " + cancelled);
-//        }, 10, TimeUnit.SECONDS);
-
-        // 运行1分钟后停止
-        try {
-            Thread.sleep(60000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } finally {
-            scheduler.stop();
-        }
     }
 
 }
