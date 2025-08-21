@@ -32,19 +32,6 @@ public class StandaloneScheduler implements Scheduler {
         this.scheduler = Executors.newScheduledThreadPool(corePoolSize);
     }
 
-    public void schedule(String cronExpression, Runnable task, String jobName) {
-        if (!running.get()) {
-            throw new IllegalStateException("调度器未启动");
-        }
-
-        // 如果同名任务已存在，先取消它
-        cancel(jobName);
-
-        CronExpression cron = new CronExpression(cronExpression);
-        ScheduledFuture<?> future = scheduleNext(cron, task, jobName);
-        scheduledTasks.put(jobName, future);
-    }
-
     @Override
     public void schedule(String cronExpression, String jobName) {
         if (!running.get()) {
@@ -70,35 +57,6 @@ public class StandaloneScheduler implements Scheduler {
         return false;
     }
 
-    private ScheduledFuture<?> scheduleNext(CronExpression cron, Runnable task, String jobName) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime next = now.plusSeconds(1);
-
-        // 查找下一个匹配的时间点
-        while (!cron.matches(next)) {
-            next = next.plusSeconds(1);
-
-            // 防止无限循环
-            if (next.isAfter(now.plusYears(1))) {
-                throw new RuntimeException("无法找到匹配的执行时间");
-            }
-        }
-
-        long delay = java.time.Duration.between(now, next).getSeconds();
-
-        return scheduler.schedule(() -> {
-            try {
-                task.run();
-            } finally {
-                // 安排下一次执行
-                if (running.get() && scheduledTasks.containsKey(jobName)) {
-                    ScheduledFuture<?> nextFuture = scheduleNext(cron, task, jobName);
-                    scheduledTasks.put(jobName, nextFuture);
-                }
-            }
-        }, delay, TimeUnit.SECONDS);
-    }
-
     private ScheduledFuture<?> scheduleNext(CronExpression cron, String jobName) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime next = now.plusSeconds(1);
@@ -114,9 +72,9 @@ public class StandaloneScheduler implements Scheduler {
         }
 
         long delay = java.time.Duration.between(now, next).getSeconds();
-
         return scheduler.schedule(() -> {
             try {
+                // 执行任务
                 ExecJobHelper execJobHelper = SpringContext.getContext().getBean(ExecJobHelper.class);
                 execJobHelper.start(jobName);
             } finally {
@@ -154,17 +112,31 @@ public class StandaloneScheduler implements Scheduler {
         }
     }
 
-    // 获取当前调度的任务数量
+    /**
+     * 获取任务数
+     *
+     * @return
+     */
     public int getTaskCount() {
         return scheduledTasks.size();
     }
 
-    // 检查特定任务是否存在
+    /**
+     * 判断任务是否已调度
+     *
+     * @param jobName
+     * @return
+     */
     @Override
     public boolean isScheduled(String jobName) {
         return scheduledTasks.containsKey(jobName);
     }
 
+    /**
+     * 获取已调度的任务数
+     *
+     * @return
+     */
     @Override
     public Long getScheduledTaskCount() {
         return (long) scheduledTasks.size();

@@ -16,6 +16,11 @@ public class ExecJobParam {
     private String jobName;
 
     /**
+     * 任务类型
+     */
+    private String jobType;
+
+    /**
      * 任务参数（json）
      */
     private String params;
