@@ -6,16 +6,15 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ds
  * @date 2025/8/26
- * @description
+ * @description 本地缓存
  */
 @Slf4j
-public class GuavaCache {
+public class LocalCache {
 
     private static final Cache<String, Object> CACHE;
 
@@ -29,15 +28,10 @@ public class GuavaCache {
                 // 设置访问后5分钟过期（每次访问会重置过期时间）
                 .expireAfterAccess(5, TimeUnit.MINUTES)
                 // 设置缓存移除监听器
-                .removalListener(new RemovalListener<String, Object>() {
-                    @Override
-                    public void onRemoval(RemovalNotification<String, Object> notification) {
-                        log.info("缓存项被移除 - Key: {}, Value: {}, 原因: {}",
-                                notification.getKey(),
-                                notification.getValue(),
-                                notification.getCause());
-                    }
-                })
+                .removalListener((RemovalListener<String, Object>) notification -> log.info("缓存项被移除 - Key: {}, Value: {}, 原因: {}",
+                        notification.getKey(),
+                        notification.getValue(),
+                        notification.getCause()))
                 // 开启统计信息
                 .recordStats()
                 .build();

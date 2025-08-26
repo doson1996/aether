@@ -20,7 +20,7 @@ import org.springframework.util.CollectionUtils;
 public class WeatherUtil {
 
     public static String getLiveWeather(String address) {
-        Object cache = GuavaCache.get(address);
+        Object cache = LocalCache.get(address);
         if (cache instanceof String) {
             return (String) cache;
         }
@@ -49,7 +49,7 @@ public class WeatherUtil {
                     if (!CollectionUtils.isEmpty(weatherInfoArray)) {
                         JSONObject weatherInfo = weatherInfoArray.getJSONObject(0);
                         result = address + "：" + weatherInfo.getString("weather") + "，" + weatherInfo.getString("temperature") + "℃";
-                        GuavaCache.put(address, result);
+                        LocalCache.put(address, result);
                     }
                 }
             }
