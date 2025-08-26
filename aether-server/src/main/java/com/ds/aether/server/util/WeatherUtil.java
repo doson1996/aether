@@ -1,6 +1,9 @@
 package com.ds.aether.server.util;
 
-import static com.ds.aether.server.util.AMapConfig.*;
+import static com.ds.aether.server.util.AMapConfig.BASE_URL;
+import static com.ds.aether.server.util.AMapConfig.INFOCODE;
+import static com.ds.aether.server.util.AMapConfig.KEY;
+import static com.ds.aether.server.util.AMapConfig.SUCCESS_CODE;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
@@ -17,6 +20,12 @@ import org.springframework.util.CollectionUtils;
 public class WeatherUtil {
 
     public static String getLiveWeather(String address) {
+        Object cache = GuavaCache.get(address);
+        if (cache instanceof String) {
+            return (String) cache;
+        }
+
+        String result = "";
         String geocodeResultStr = HttpUtil.get(BASE_URL + "geocode/geo?key=" + KEY + "&address=" + address);
         String adcode = "";
         if (StrUtil.isNotBlank(geocodeResultStr)) {
@@ -39,13 +48,14 @@ public class WeatherUtil {
                     JSONArray weatherInfoArray = weatherInfoResult.getJSONArray("lives");
                     if (!CollectionUtils.isEmpty(weatherInfoArray)) {
                         JSONObject weatherInfo = weatherInfoArray.getJSONObject(0);
-                        return address + "：" + weatherInfo.getString("weather") + "，" + weatherInfo.getString("temperature") + "℃";
+                        result = address + "：" + weatherInfo.getString("weather") + "，" + weatherInfo.getString("temperature") + "℃";
+                        GuavaCache.put(address, result);
                     }
                 }
             }
         }
 
-        return "";
+        return result;
     }
 
 }

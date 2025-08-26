@@ -12,12 +12,95 @@
         </a>
         <div class="navbar-nav ms-auto">
             <!-- 天气展示区域 -->
-            <span class="navbar-text ms-3" th:text="${weatherInfo ?: '天气信息获取中...'}"></span>
+            <span class="navbar-text ms-3 d-flex align-items-center" th:if="${weatherInfo}">
+                <!-- 晴天图标 -->
+                <span th:if="${weatherInfo.contains('晴')}">
+                    <i class="bi bi-sun weather-icon"></i>
+                </span>
+                <!-- 多云图标 -->
+                <span th:if="${weatherInfo.contains('多云')}">
+                    <i class="bi bi-clouds weather-icon"></i>
+                </span>
+                <!-- 阴天图标 -->
+                <span th:if="${weatherInfo.contains('阴')}">
+                    <i class="bi bi-cloud weather-icon"></i>
+                </span>
+                <!-- 雷阵雨图标 -->
+                <span th:if="${weatherInfo.contains('雷阵雨')}">
+                    <i class="bi bi-cloud-lightning-rain weather-icon"></i>
+                </span>
+                <!-- 阵雨图标 -->
+                <span th:if="${weatherInfo.contains('阵雨')}">
+                    <i class="bi bi-cloud-rain-heavy weather-icon"></i>
+                </span>
+                <!-- 暴雨图标 -->
+                <span th:if="${weatherInfo.contains('暴雨')}">
+                    <i class="bi bi-cloud-rain-heavy weather-icon"></i>
+                </span>
+                <!-- 大雨图标 -->
+                <span th:if="${weatherInfo.contains('大雨')}">
+                    <i class="bi bi-cloud-rain-heavy weather-icon"></i>
+                </span>
+                <!-- 中雨图标 -->
+                <span th:if="${weatherInfo.contains('中雨')}">
+                    <i class="bi bi-cloud-rain weather-icon"></i>
+                </span>
+                <!-- 小雨图标 -->
+                <span th:if="${weatherInfo.contains('小雨')}">
+                    <i class="bi bi-cloud-drizzle weather-icon"></i>
+                </span>
+                <!-- 雨天图标（通用） -->
+                <span th:if="${weatherInfo.contains('雨') && !weatherInfo.contains('小雨') && !weatherInfo.contains('中雨') && !weatherInfo.contains('大雨') && !weatherInfo.contains('暴雨') && !weatherInfo.contains('阵雨') && !weatherInfo.contains('雷阵雨')}">
+                    <i class="bi bi-cloud-rain weather-icon"></i>
+                </span>
+                <!-- 大雪图标 -->
+                <span th:if="${weatherInfo.contains('大雪')}">
+                    <i class="bi bi-cloud-snow-fill weather-icon"></i>
+                </span>
+                <!-- 小雪图标 -->
+                <span th:if="${weatherInfo.contains('小雪')}">
+                    <i class="bi bi-cloud-snow weather-icon"></i>
+                </span>
+                <!-- 雪天图标（通用） -->
+                <span th:if="${weatherInfo.contains('雪') && !weatherInfo.contains('小雪') && !weatherInfo.contains('大雪')}">
+                    <i class="bi bi-cloud-snow weather-icon"></i>
+                </span>
+                <!-- 雾天图标 -->
+                <span th:if="${weatherInfo.contains('雾')}">
+                    <i class="bi bi-cloud-fog weather-icon"></i>
+                </span>
+                <!-- 霾天图标 -->
+                <span th:if="${weatherInfo.contains('霾')}">
+                    <i class="bi bi-cloud-haze weather-icon"></i>
+                </span>
+                <!-- 沙尘暴图标 -->
+                <span th:if="${weatherInfo.contains('沙尘暴')}">
+                    <i class="bi bi-wind weather-icon"></i>
+                </span>
+                <!-- 默认云朵图标 -->
+                <span th:if="${!weatherInfo.contains('晴') && !weatherInfo.contains('多云') && !weatherInfo.contains('阴') && !weatherInfo.contains('雨') && !weatherInfo.contains('雪') && !weatherInfo.contains('雾') && !weatherInfo.contains('霾') && !weatherInfo.contains('沙尘暴')}">
+                    <i class="bi bi-cloud weather-icon"></i>
+                </span>
+                <span class="ms-1" th:text="${weatherInfo}"></span>
+            </span>
+            <span class="navbar-text ms-3" th:unless="${weatherInfo}">天气信息获取中...</span>
             <a class="nav-link" th:classappend="${currentPage == 'index' ? 'active' : ''}" href="/api/page/">首页</a>
             <a class="nav-link" th:classappend="${currentPage == 'add-job' ? 'active' : ''}" href="/api/page/add-job">添加任务</a>
+            <li class="nav-item" th:classappend="${currentPage == 'products'} ? 'active'">
+                <a class="nav-link" th:href="@{/page/products}">
+                    <i class="bi bi-cart-check"></i> 购买服务
+                </a>
+            </li>
         </div>
     </div>
 </nav>
+
+<style>
+    .weather-icon {
+        font-size: 1.2rem;
+        margin-right: 5px;
+    }
+</style>
 
 </body>
 </html>

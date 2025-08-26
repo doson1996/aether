@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>购买Aether服务版本 - Aether 任务调度系统</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap-icons.css}" rel="stylesheet">
+    <link th:href="@{/css/element-plus.css}" rel="stylesheet">
+    <script th:src="@{/js/vue.global.js}"></script>
+    <script th:src="@{/js/element-plus.js}"></script>
+    <style>
+        .products-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .page-header h1 {
+            color: #108ee9;
+            margin-bottom: 15px;
+        }
+        .page-header p {
+            color: #666;
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .product-card {
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .product-card.popular {
+            border-color: #108ee9;
+            position: relative;
+        }
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            right: 30px;
+            background-color: #108ee9;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .product-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .product-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .product-price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ff6600;
+            margin-bottom: 5px;
+        }
+        .price-unit {
+            font-size: 16px;
+            color: #999;
+        }
+        .product-description {
+            color: #666;
+            margin-bottom: 25px;
+            text-align: center;
+            min-height: 60px;
+        }
+        .feature-list {
+            margin-bottom: 30px;
+        }
+        .feature-item {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+        .feature-icon {
+            color: #52c41a;
+            margin-right: 10px;
+        }
+        .buy-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #108ee9;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .buy-btn:hover {
+            background-color: #0e7dd4;
+            text-decoration: none;
+            color: white;
+        }
+        .buy-btn.popular {
+            background-color: #ff6600;
+        }
+        .buy-btn.popular:hover {
+            background-color: #e65c00;
+        }
+        .comparison-table {
+            margin: 50px 0;
+        }
+        .comparison-header {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .comparison-cell {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        .comparison-feature {
+            text-align: left;
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="container-fluid">
+        <!-- 导航栏 -->
+        <div th:replace="~{fragments :: navbar(currentPage='products')}"></div>
+
+        <div class="products-container">
+            <div class="page-header">
+                <h1><i class="bi bi-cart-check"></i> 选择Aether服务版本</h1>
+                <p>选择适合您需求的服务版本，享受专业的任务调度服务</p>
+            </div>
+
+            <div class="row">
+                <!-- 基础版 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-header">
+                            <div class="product-name">基础版</div>
+                            <div class="product-price">¥99<span class="price-unit">/年</span></div>
+                            <div class="product-description">适合小型项目和个人开发者使用</div>
+                        </div>
+
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                最多10个任务调度
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                基础任务监控
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                邮件通知
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                标准技术支持
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-x-circle feature-icon" style="color: #ccc;"></i>
+                                <span style="color: #ccc;">高级调度策略</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-x-circle feature-icon" style="color: #ccc;"></i>
+                                <span style="color: #ccc;">自定义执行器</span>
+                            </div>
+                        </div>
+
+                        <a :href="getPaymentUrl('1')" class="buy-btn">立即购买</a>
+                    </div>
+                </div>
+
+                <!-- 专业版 (推荐) -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card popular">
+                        <div class="popular-badge">推荐</div>
+                        <div class="product-header">
+                            <div class="product-name">专业版</div>
+                            <div class="product-price">¥299<span class="price-unit">/年</span></div>
+                            <div class="product-description">适合中型企业项目使用</div>
+                        </div>
+
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                最多100个任务调度
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                高级任务监控
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                多种通知方式
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                优先技术支持
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                高级调度策略
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-x-circle feature-icon" style="color: #ccc;"></i>
+                                <span style="color: #ccc;">自定义执行器</span>
+                            </div>
+                        </div>
+
+                        <a :href="getPaymentUrl('2')" class="buy-btn popular">立即购买</a>
+                    </div>
+                </div>
+
+                <!-- 企业版 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-header">
+                            <div class="product-name">企业版</div>
+                            <div class="product-price">¥999<span class="price-unit">/年</span></div>
+                            <div class="product-description">适合大型企业项目和高并发场景</div>
+                        </div>
+
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                无限制任务调度
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                完整任务监控
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                全渠道通知
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                24/7专属技术支持
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                全部高级功能
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-check-circle-fill feature-icon"></i>
+                                自定义执行器
+                            </div>
+                        </div>
+
+                        <a :href="getPaymentUrl('3')" class="buy-btn">立即购买</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能对比表 -->
+            <div class="comparison-table">
+                <h3 class="text-center mb-4">功能对比</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="comparison-header">
+                        <tr>
+                            <th class="comparison-cell">功能特性</th>
+                            <th class="comparison-cell">基础版</th>
+                            <th class="comparison-cell">专业版</th>
+                            <th class="comparison-cell">企业版</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="comparison-cell comparison-feature">任务调度数量</td>
+                            <td class="comparison-cell">最多10个</td>
+                            <td class="comparison-cell">最多100个</td>
+                            <td class="comparison-cell">无限制</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-cell comparison-feature">任务监控</td>
+                            <td class="comparison-cell"><i class="bi bi-check-lg text-success"></i></td>
+                            <td class="comparison-cell"><i class="bi bi-check-lg text-success"></i></td>
+                            <td class="comparison-cell"><i class="bi bi-check-lg text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-cell comparison-feature">通知方式</td>
+                            <td class="comparison-cell">邮件</td>
+                            <td class="comparison-cell">邮件+短信</td>
+                            <td class="comparison-cell">全渠道</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-cell comparison-feature">技术支持</td>
+                            <td class="comparison-cell">标准</td>
+                            <td class="comparison-cell">优先</td>
+                            <td class="comparison-cell">24/7专属</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-cell comparison-feature">高级调度策略</td>
+                            <td class="comparison-cell"><i class="bi bi-x-lg text-muted"></i></td>
+                            <td class="comparison-cell"><i class="bi bi-check-lg text-success"></i></td>
+                            <td class="comparison-cell"><i class="bi bi-check-lg text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-cell comparison-feature">自定义执行器</td>
+                            <td class="comparison-cell"><i class="bi bi-x-lg text-muted"></i></td>
+                            <td class="comparison-cell"><i class="bi bi-x-lg text-muted"></i></td>
+                            <td class="comparison-cell"><i class="bi bi-check-lg text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-cell comparison-feature">价格</td>
+                            <td class="comparison-cell">¥99/年</td>
+                            <td class="comparison-cell">¥299/年</td>
+                            <td class="comparison-cell">¥999/年</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-cell comparison-feature">购买</td>
+                            <td class="comparison-cell">
+                                <a :href="getPaymentUrl('1')" class="btn btn-sm btn-outline-primary">购买</a>
+                            </td>
+                            <td class="comparison-cell">
+                                <a :href="getPaymentUrl('2')" class="btn btn-sm btn-primary">购买</a>
+                            </td>
+                            <td class="comparison-cell">
+                                <a :href="getPaymentUrl('3')" class="btn btn-sm btn-outline-primary">购买</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const { createApp } = Vue;
+    const { ElMessage } = ElementPlus;
+
+    const API_BASE_URL = /*[[@{/}]]*/ '/';
+
+    createApp({
+        setup() {
+            const userId = 1
+            // 获取支付URL
+            const getPaymentUrl = (productId) => {
+                return `${API_BASE_URL}page/payment?productId=${productId}&userId=${userId}`;
+            };
+
+            return {
+                getPaymentUrl
+            };
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

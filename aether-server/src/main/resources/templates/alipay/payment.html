@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>支付宝支付 - Aether 任务调度系统</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap-icons.css}" rel="stylesheet">
+    <link th:href="@{/css/element-plus.css}" rel="stylesheet">
+    <script th:src="@{/js/vue.global.js}"></script>
+    <script th:src="@{/js/element-plus.js}"></script>
+    <script th:src="@{/js/axios.min.js}"></script>
+    <style>
+        .payment-container {
+            max-width: 800px;
+            margin: 30px auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .alipay-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .alipay-header h2 {
+            color: #108ee9;
+            margin-bottom: 10px;
+        }
+        .product-info {
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+            background-color: #fafafa;
+        }
+        .product-info h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .pay-btn {
+            background-color: #108ee9;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .pay-btn:hover {
+            background-color: #0e7dd4;
+        }
+        .pay-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .alipay-logo {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .alipay-logo img {
+            height: 40px;
+        }
+        .amount-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6600;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #108ee9;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="container-fluid">
+        <!-- 导航栏 -->
+        <div th:replace="~{fragments :: navbar(currentPage='alipay')}"></div>
+
+        <div class="payment-container">
+            <div class="alipay-header">
+                <h2><i class="bi bi-wallet2"></i> 支付宝支付</h2>
+            </div>
+
+            <div class="alipay-logo">
+                <img th:src="@{/alipay.png}" alt="支付宝">
+            </div>
+
+            <!-- 加载状态 -->
+            <div v-if="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <p>正在加载商品信息...</p>
+            </div>
+
+            <!-- 错误状态 -->
+            <div v-else-if="error" class="alert alert-danger" role="alert">
+                {{ error }}
+                <button class="btn btn-primary ms-3" @click="loadProductInfo">重新加载</button>
+            </div>
+
+            <!-- 商品信息 -->
+            <div v-else class="product-info">
+                <h4>商品信息</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>商品名称：</strong>{{ paymentForm.subject }}</p>
+                        <p><strong>商品描述：</strong>{{ paymentForm.body }}</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <p><strong>订单号：</strong>{{ paymentForm.outTradeNo }}</p>
+                        <p><strong>支付金额：</strong><span class="amount-display">￥{{ paymentForm.totalAmount }}</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <form v-if="!loading && !error" @submit.prevent="submitPayment">
+                <button type="submit" class="pay-btn" :disabled="isSubmitting">
+                    <span v-if="!isSubmitting">立即支付</span>
+                    <span v-else>处理中...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const { createApp, ref, onMounted } = Vue;
+    const { ElMessage, ElLoading } = ElementPlus;
+
+    const API_BASE_URL = /*[[@{/}]]*/ '/';
+
+    createApp({
+        setup() {
+            const isSubmitting = ref(false);
+            const loading = ref(true);
+            const error = ref(null);
+
+            // 生成随机订单号
+            const generateOrderNo = () => {
+                const date = new Date();
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const random = Math.floor(Math.random() * 10000);
+                return `ORDER${year}${month}${day}${String(random).padStart(4, '0')}`;
+            };
+
+            const paymentForm = ref({
+                outTradeNo: generateOrderNo(),
+                subject: 'Aether任务调度服务',
+                totalAmount: '100',
+                body: 'Aether任务调度系统服务费用'
+            });
+
+            // 从URL参数获取商品ID
+            const getProductIdFromUrl = () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('productId') || urlParams.get('product_id');
+            };
+
+            // 从URL参数获取订单号（如果有的话）
+            const getOrderNoFromUrl = () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('orderNo') || urlParams.get('order_no') || urlParams.get('outTradeNo');
+            };
+
+            // 加载商品信息
+            const loadProductInfo = async () => {
+                loading.value = true;
+                error.value = null;
+
+                try {
+                    // 获取商品ID
+                    const productId = getProductIdFromUrl();
+                    const orderNo = getOrderNoFromUrl();
+                    const userId = 1;
+
+                    // 如果有订单号，优先使用订单号
+                    if (orderNo) {
+                        paymentForm.value.outTradeNo = orderNo;
+                    }
+
+                    // 如果有商品ID，则调用后端接口获取商品信息
+                    if (productId) {
+                        const response = await axios.get(`${API_BASE_URL}alipay/product/${productId}/${userId}`);
+
+                        if (response.data.success) {
+                            const product = response.data.data;
+                            paymentForm.value.subject = product.name || paymentForm.value.subject;
+                            paymentForm.value.body = product.description || paymentForm.value.body;
+                            paymentForm.value.totalAmount = product.price || paymentForm.value.totalAmount;
+
+                            // 如果返回了订单号，使用返回的订单号
+                            if (product.orderNo) {
+                                paymentForm.value.outTradeNo = product.orderNo;
+                            }
+                        } else {
+                            throw new Error(response.data.message || '获取商品信息失败');
+                        }
+                    }
+                } catch (err) {
+                    console.error('加载商品信息失败:', err);
+                    error.value = err.message || '加载商品信息失败';
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            const submitPayment = async () => {
+                if (!paymentForm.value.outTradeNo || !paymentForm.value.subject ||
+                    !paymentForm.value.totalAmount || parseFloat(paymentForm.value.totalAmount) <= 0) {
+                    ElMessage({
+                        message: '请填写完整的支付信息',
+                        type: 'warning'
+                    });
+                    return;
+                }
+
+                isSubmitting.value = true;
+
+                try {
+                    const response = await axios.post(`${API_BASE_URL}alipay/pay`, paymentForm.value);
+
+                    if (response.data.success) {
+                        // 创建一个临时div来存放返回的表单
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = response.data.data;
+                        const form = tempDiv.querySelector('form');
+
+                        if (form) {
+                            // 将表单添加到页面并提交
+                            document.body.appendChild(form);
+                            form.submit();
+                        } else {
+                            ElMessage({
+                                message: '支付请求失败，请重试',
+                                type: 'error'
+                            });
+                        }
+                    } else {
+                        ElMessage({
+                            message: response.data.message || '支付请求失败',
+                            type: 'error'
+                        });
+                    }
+                } catch (error) {
+                    console.error('支付请求出错:', error);
+                    ElMessage({
+                        message: '支付请求出错，请重试',
+                        type: 'error'
+                    });
+                } finally {
+                    isSubmitting.value = false;
+                }
+            };
+
+            // 页面加载时获取商品信息
+            onMounted(() => {
+                loadProductInfo();
+            });
+
+            return {
+                paymentForm,
+                isSubmitting,
+                loading,
+                error,
+                submitPayment,
+                loadProductInfo
+            };
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

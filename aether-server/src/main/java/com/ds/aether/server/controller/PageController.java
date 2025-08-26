@@ -1,6 +1,7 @@
 package com.ds.aether.server.controller;
 
 import com.ds.aether.server.log.AccessLog;
+import com.ds.aether.server.util.WeatherUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +20,7 @@ public class PageController {
     @GetMapping("/")
     public String indexPage(Model model) {
         model.addAttribute("title", "主页");
-//        model.addAttribute("weatherInfo", WeatherUtil.getLiveWeather("重庆市"));
+        model.addAttribute("weatherInfo", WeatherUtil.getLiveWeather("重庆市"));
         return "index";
     }
 
@@ -35,6 +36,18 @@ public class PageController {
     public String editJob(Model model) {
         model.addAttribute("title", "编辑任务");
         return "edit-job";
+    }
+
+    @AccessLog(module = "页面控制", operation = "显示购买产品页面")
+    @GetMapping("/products")
+    public String showProductsPage() {
+        return "products/products";
+    }
+
+    @AccessLog(module = "页面控制", operation = "显示支付页面")
+    @GetMapping("/payment")
+    public String showPaymentPage() {
+        return "alipay/payment";
     }
 
 }

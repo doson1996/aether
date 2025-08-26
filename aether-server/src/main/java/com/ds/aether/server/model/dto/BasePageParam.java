@@ -1,6 +1,8 @@
 package com.ds.aether.server.model.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author ds
@@ -8,6 +10,8 @@ import lombok.Data;
  * @description
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class BasePageParam {
 
     private Integer pageNum;

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>支付结果 - Aether 任务调度系统</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap-icons.css}" rel="stylesheet">
+    <link th:href="@{/css/element-plus.css}" rel="stylesheet">
+    <script th:src="@{/js/vue.global.js}"></script>
+    <script th:src="@{/js/element-plus.js}"></script>
+    <style>
+        .result-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
+        }
+        .success-icon {
+            color: #52c41a;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .fail-icon {
+            color: #ff4d4f;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .result-container h2 {
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+        .result-container p {
+            color: #666;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .btn-primary {
+            background-color: #108ee9;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .btn-primary:hover {
+            background-color: #0e7dd4;
+            color: white;
+            text-decoration: none;
+        }
+        .info-item {
+            text-align: left;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="container-fluid">
+        <!-- 导航栏 -->
+        <div th:replace="~{fragments :: navbar(currentPage='alipay')}"></div>
+
+        <div class="result-container">
+            <div th:if="${success}" class="success-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div th:unless="${success}" class="fail-icon">
+                <i class="bi bi-x-circle-fill"></i>
+            </div>
+
+            <h2 th:if="${success}">支付成功</h2>
+            <h2 th:unless="${success}">支付失败</h2>
+
+            <div class="info-item">
+                <span class="info-label">订单号：</span>
+                <span th:text="${outTradeNo}"></span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">支付金额：</span>
+                <span th:text="${totalAmount}"></span> 元
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">支付时间：</span>
+                <span th:text="${timestamp}"></span>
+            </div>
+
+            <div th:if="${tradeNo}" class="info-item">
+                <span class="info-label">支付宝交易号：</span>
+                <span th:text="${tradeNo}"></span>
+            </div>
+
+            <a href="/api/page/payment" class="btn-primary">
+                <i class="bi bi-arrow-left"></i> 继续支付
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue;
+    const { ElMessage } = ElementPlus;
+
+    createApp({}).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>
