@@ -33,69 +33,6 @@ public class AlipayController {
     @Autowired
     private AlipaySandboxTradePagePay alipayService;
 
-
-
-    /**
-     * 获取商品信息接口
-     */
-    @GetMapping("/product/{productId}/{userId}")
-    @ResponseBody
-    public Map<String, Object> getProductInfo(@PathVariable String productId, String userId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            // 这里应该从数据库或其他服务获取商品信息
-            // 示例数据，实际应该根据productId查询真实数据
-            Map<String, Object> product = new HashMap<>();
-
-            String orderNo = genOrderNo();
-            log.info("orderNo = " + orderNo + ", userId = " + userId);
-            if ("1".equals(productId)) {
-                product.put("id", productId);
-                product.put("name", "Aether基础版服务");
-                product.put("description", "Aether任务调度系统基础版服务费用");
-                product.put("price", "99.00");
-                product.put("orderNo", orderNo);
-            } else if ("2".equals(productId)) {
-                product.put("id", productId);
-                product.put("name", "Aether专业版服务");
-                product.put("description", "Aether任务调度系统专业版服务费用");
-                product.put("price", "299.00");
-                product.put("orderNo", orderNo);
-            } else if ("3".equals(productId)) {
-                product.put("id", productId);
-                product.put("name", "Aether企业版服务");
-                product.put("description", "Aether任务调度系统企业版服务费用");
-                product.put("price", "999.00");
-                product.put("orderNo", orderNo);
-            } else {
-                // 默认商品信息
-                product.put("id", productId);
-                product.put("name", "Aether基础版服务");
-                product.put("description", "Aether任务调度系统基础版服务费用");
-                product.put("price", "99.00");
-                product.put("orderNo", orderNo);
-            }
-
-            result.put("success", true);
-            result.put("data", product);
-            result.put("message", "获取商品信息成功");
-        } catch (Exception e) {
-            log.error("获取商品信息失败", e);
-            result.put("success", false);
-            result.put("message", "获取商品信息失败: " + e.getMessage());
-        }
-        return result;
-    }
-
-    /**
-     * 生成订单号
-     *
-     * @return
-     */
-    private String genOrderNo() {
-        return "ORDER" + System.currentTimeMillis();
-    }
-
     /**
      * 处理支付请求
      */

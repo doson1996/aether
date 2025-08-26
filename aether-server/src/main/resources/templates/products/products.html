@@ -361,10 +361,9 @@
 
     createApp({
         setup() {
-            const userId = 1
             // 获取支付URL
             const getPaymentUrl = (productId) => {
-                return `${API_BASE_URL}page/payment?productId=${productId}&userId=${userId}`;
+                return `${API_BASE_URL}page/payment?productId=${productId}`;
             };
 
             return {

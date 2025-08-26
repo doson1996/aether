@@ -169,18 +169,9 @@
             const loading = ref(true);
             const error = ref(null);
 
-            // 生成随机订单号
-            const generateOrderNo = () => {
-                const date = new Date();
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                const random = Math.floor(Math.random() * 10000);
-                return `ORDER${year}${month}${day}${String(random).padStart(4, '0')}`;
-            };
 
             const paymentForm = ref({
-                outTradeNo: generateOrderNo(),
+                outTradeNo: 0,
                 subject: 'Aether任务调度服务',
                 totalAmount: '100',
                 body: 'Aether任务调度系统服务费用'
@@ -192,12 +183,6 @@
                 return urlParams.get('productId') || urlParams.get('product_id');
             };
 
-            // 从URL参数获取订单号（如果有的话）
-            const getOrderNoFromUrl = () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('orderNo') || urlParams.get('order_no') || urlParams.get('outTradeNo');
-            };
-
             // 加载商品信息
             const loadProductInfo = async () => {
                 loading.value = true;
@@ -206,8 +191,7 @@
                 try {
                     // 获取商品ID
                     const productId = getProductIdFromUrl();
-                    const orderNo = getOrderNoFromUrl();
-                    const userId = 1;
+                    const orderNo = 0;
 
                     // 如果有订单号，优先使用订单号
                     if (orderNo) {
@@ -216,7 +200,7 @@
 
                     // 如果有商品ID，则调用后端接口获取商品信息
                     if (productId) {
-                        const response = await axios.get(`${API_BASE_URL}alipay/product/${productId}/${userId}`);
+                        const response = await axios.get(`${API_BASE_URL}/product/info/${productId}`);
 
                         if (response.data.success) {
                             const product = response.data.data;
