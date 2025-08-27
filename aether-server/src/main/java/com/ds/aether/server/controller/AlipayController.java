@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +40,10 @@ public class AlipayController {
     public Map<String, Object> handlePayment(@RequestBody Map<String, String> paymentInfo) {
         Map<String, Object> result = new HashMap<>();
         try {
+            // todo 获取支付信息,根据商品id获取价格
+            String productId = paymentInfo.get("productId");
             String outTradeNo = paymentInfo.get("outTradeNo");
+
             String totalAmount = paymentInfo.get("totalAmount");
             String subject = paymentInfo.get("subject");
             String body = paymentInfo.get("body");

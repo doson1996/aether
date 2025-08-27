@@ -344,7 +344,7 @@
                                 maxlength="6"
                                 :disabled="isSubmitting"
                                 class="form-control captcha-input"
-                                @keyup.enter="validateCaptchaOnly"/>
+                        />
                         <div class="input-group-text captcha-info">
                             <i class="bi bi-shield-lock"></i> 6位数字验证码
                         </div>
@@ -372,11 +372,11 @@
             <form v-if="!loading && !error" @submit.prevent="submitPayment">
                 <button type="submit"
                         class="pay-btn"
-                        :disabled="isSubmitting || !captchaState.isCaptchaValid">
+                        :disabled="isSubmitting">
                     <span v-if="!isSubmitting">立即支付</span>
                     <span v-else>处理中...</span>
-                    <span v-if="!captchaState.isCaptchaValid && !isSubmitting" class="validation-hint">
-            (请先验证邮箱验证码)
+<!--                    <span v-if="!captchaState.isCaptchaValid && !isSubmitting" class="validation-hint">-->
+<!--            (请先验证邮箱验证码)-->
         </span>
                 </button>
             </form>
@@ -409,10 +409,11 @@ createApp({
         });
 
         const paymentForm = ref({
-            outTradeNo: 0,
-            subject: 'Aether任务调度服务',
-            totalAmount: '100',
-            body: 'Aether任务调度系统服务费用'
+            productId: null,
+            outTradeNo: null,
+            subject: null,
+            totalAmount: null,
+            body: null
         });
 
         // 从URL参数获取商品ID
@@ -442,6 +443,7 @@ createApp({
 
                     if (response.data.success) {
                         const product = response.data.data;
+                        paymentForm.value.productId = product.id || paymentForm.value.id;
                         paymentForm.value.subject = product.name || paymentForm.value.subject;
                         paymentForm.value.body = product.description || paymentForm.value.body;
                         paymentForm.value.totalAmount = product.price || paymentForm.value.totalAmount;
@@ -595,7 +597,7 @@ createApp({
 
         // 提交支付
         const submitPayment = async () => {
-            if (!paymentForm.value.outTradeNo || !paymentForm.value.subject ||
+            if (!paymentForm.value.outTradeNo || !paymentForm.value.subject || !paymentForm.value.productId ||
                 !paymentForm.value.totalAmount || parseFloat(paymentForm.value.totalAmount) <= 0) {
                 ElMessage({
                     message: '请填写完整的支付信息',
