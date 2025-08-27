@@ -34,6 +34,22 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
     cache: false
+  # 邮件
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: doson1996@vip.qq.com
+    password: ogbnzaalwfwbgchh
+    default-encoding: utf-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
 
 aether:
   server:

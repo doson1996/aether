@@ -2,7 +2,7 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>支付宝支付 - Aether 任务调度系统</title>
+    <title>支付 - Aether 任务调度系统</title>
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/bootstrap-icons.css}" rel="stylesheet">
@@ -11,24 +11,60 @@
     <script th:src="@{/js/element-plus.js}"></script>
     <script th:src="@{/js/axios.min.js}"></script>
     <style>
+        /* 验证消息样式 */
+        .validation-message {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 支付按钮验证提示 */
+        .validation-hint {
+            font-size: 12px;
+            opacity: 0.8;
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* 支付按钮禁用状态增强 */
+        .pay-btn:disabled:not(:hover) {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        /* 验证码输入框成功状态 */
+        .captcha-input.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+
+        /* 验证码输入框错误状态 */
+        .captcha-input.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
         .payment-container {
             max-width: 800px;
             margin: 30px auto;
             background-color: white;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 30px;
         }
+
         .alipay-header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 1px solid #eee;
         }
+
         .alipay-header h2 {
             color: #108ee9;
             margin-bottom: 10px;
         }
+
         .product-info {
             border: 1px solid #e8e8e8;
             border-radius: 4px;
@@ -36,19 +72,23 @@
             margin-bottom: 30px;
             background-color: #fafafa;
         }
+
         .product-info h4 {
             margin-top: 0;
             color: #333;
         }
+
         .form-group {
             margin-bottom: 20px;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
             color: #555;
         }
+
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 10px;
@@ -56,6 +96,7 @@
             border-radius: 4px;
             font-size: 16px;
         }
+
         .pay-btn {
             background-color: #108ee9;
             color: white;
@@ -67,29 +108,36 @@
             width: 100%;
             margin-top: 20px;
         }
+
         .pay-btn:hover {
             background-color: #0e7dd4;
         }
+
         .pay-btn:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
+
         .alipay-logo {
             text-align: center;
             margin: 20px 0;
         }
+
         .alipay-logo img {
             height: 40px;
         }
+
         .amount-display {
             font-size: 24px;
             font-weight: bold;
             color: #ff6600;
         }
+
         .loading {
             text-align: center;
             padding: 20px;
         }
+
         .loading-spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #108ee9;
@@ -99,9 +147,129 @@
             animation: spin 2s linear infinite;
             margin: 0 auto 20px;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 验证码容器样式 */
+        .captcha-container {
+            padding: 15px;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+
+        /* 发送验证码按钮样式 */
+        .send-captcha-btn {
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .send-captcha-btn:disabled {
+            background-color: #cccccc;
+            border-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* 验证码输入框样式 */
+        .captcha-input {
+            text-align: center;
+            font-size: 18px;
+            letter-spacing: 3px;
+            font-weight: bold;
+        }
+
+        /* 验证码信息提示 */
+        .captcha-info {
+            background-color: #f0f8ff;
+            color: #108ee9;
+            font-size: 12px;
+        }
+
+        /* 倒计时按钮样式 */
+        .send-captcha-btn[countdown]:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        /* 表单文本样式 */
+        .form-text {
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .input-group .form-control,
+            .input-group .btn {
+                width: 100%;
+            }
+
+            .send-captcha-btn {
+                min-width: auto;
+            }
+        }
+
+        /* 验证码输入框聚焦效果 */
+        .captcha-input:focus {
+            border-color: #108ee9;
+            box-shadow: 0 0 0 0.2rem rgba(16, 142, 233, 0.25);
+        }
+
+        /* 按钮悬停效果 */
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* 加载状态下的按钮 */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-top: -8px;
+            margin-left: -8px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* 验证码成功状态 */
+        .captcha-success {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+
+        .captcha-success-icon {
+            color: #28a745;
+            font-size: 18px;
+            margin-left: 10px;
+        }
+
+        /* 验证码错误状态 */
+        .captcha-error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
         }
     </style>
 </head>
@@ -142,15 +310,74 @@
                     </div>
                     <div class="col-md-6 text-end">
                         <p><strong>订单号：</strong>{{ paymentForm.outTradeNo }}</p>
-                        <p><strong>支付金额：</strong><span class="amount-display">￥{{ paymentForm.totalAmount }}</span></p>
+                        <p><strong>支付金额：</strong><span class="amount-display">￥{{ paymentForm.totalAmount }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 邮箱验证码 -->
+            <div class="form-group">
+                <label>邮箱验证码：</label>
+                <div class="captcha-container">
+                    <div class="input-group">
+                        <input
+                                type="email"
+                                v-model="captchaState.email"
+                                placeholder="请输入您的邮箱地址"
+                                :disabled="isSubmitting"
+                                class="form-control"/>
+                        <button
+                                type="button"
+                                @click="sendCaptcha"
+                                :disabled="isSubmitting || captchaState.captchaCountdown > 0"
+                                class="btn btn-primary send-captcha-btn">
+                            <span v-if="captchaState.captchaCountdown > 0">{{ captchaState.captchaCountdown }}秒后重发</span>
+                            <span v-else><i class="bi bi-envelope"></i> 获取验证码</span>
+                        </button>
+                    </div>
+                    <div class="input-group mt-2">
+                        <input
+                                type="text"
+                                v-model="captchaState.captcha"
+                                placeholder="请输入邮箱验证码"
+                                maxlength="6"
+                                :disabled="isSubmitting"
+                                class="form-control captcha-input"
+                                @keyup.enter="validateCaptchaOnly"/>
+                        <div class="input-group-text captcha-info">
+                            <i class="bi bi-shield-lock"></i> 6位数字验证码
+                        </div>
+                    </div>
+                    <!-- 验证结果显示 -->
+                    <div v-if="captchaState.validationMessage"
+                         :class="[
+                 'validation-message',
+                 'mt-2',
+                 'p-2',
+                 'rounded',
+                 captchaState.isCaptchaValid ? 'bg-success text-white' : 'bg-danger text-white'
+             ]">
+                        <i :class="[
+                captchaState.isCaptchaValid ? 'bi bi-check-circle' : 'bi bi-exclamation-circle'
+            ]"></i>
+                        {{ captchaState.validationMessage }}
+                    </div>
+                    <div class="form-text text-muted">
+                        <i class="bi bi-info-circle"></i> 验证码将发送到您的邮箱，用于确认支付操作，5分钟内有效
                     </div>
                 </div>
             </div>
 
             <form v-if="!loading && !error" @submit.prevent="submitPayment">
-                <button type="submit" class="pay-btn" :disabled="isSubmitting">
+                <button type="submit"
+                        class="pay-btn"
+                        :disabled="isSubmitting || !captchaState.isCaptchaValid">
                     <span v-if="!isSubmitting">立即支付</span>
                     <span v-else>处理中...</span>
+                    <span v-if="!captchaState.isCaptchaValid && !isSubmitting" class="validation-hint">
+            (请先验证邮箱验证码)
+        </span>
                 </button>
             </form>
         </div>
@@ -158,135 +385,300 @@
 </div>
 
 <script th:inline="javascript">
-    const { createApp, ref, onMounted } = Vue;
-    const { ElMessage, ElLoading } = ElementPlus;
+const {createApp, ref, onMounted, reactive} = Vue;
+const {ElMessage, ElLoading} = ElementPlus;
 
-    const API_BASE_URL = /*[[@{/}]]*/ '/';
+const API_BASE_URL = /*[[@{/}]]*/ '/';
 
-    createApp({
-        setup() {
-            const isSubmitting = ref(false);
-            const loading = ref(true);
-            const error = ref(null);
+createApp({
+    setup() {
+        const isSubmitting = ref(false);
+        const loading = ref(true);
+        const error = ref(null);
 
+        // 验证码相关状态
+        const captchaState = reactive({
+            email: '',
+            captcha: '',
+            isCaptchaSent: false,
+            captchaCountdown: 0,
+            captchaTimer: null,
+            isCaptchaValidating: false,
+            isCaptchaValid: false, // 验证码是否验证通过
+            validationMessage: ''  // 验证结果消息
+        });
 
-            const paymentForm = ref({
-                outTradeNo: 0,
-                subject: 'Aether任务调度服务',
-                totalAmount: '100',
-                body: 'Aether任务调度系统服务费用'
-            });
+        const paymentForm = ref({
+            outTradeNo: 0,
+            subject: 'Aether任务调度服务',
+            totalAmount: '100',
+            body: 'Aether任务调度系统服务费用'
+        });
 
-            // 从URL参数获取商品ID
-            const getProductIdFromUrl = () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('productId') || urlParams.get('product_id');
-            };
+        // 从URL参数获取商品ID
+        const getProductIdFromUrl = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('productId') || urlParams.get('product_id');
+        };
 
-            // 加载商品信息
-            const loadProductInfo = async () => {
-                loading.value = true;
-                error.value = null;
+        // 加载商品信息
+        const loadProductInfo = async () => {
+            loading.value = true;
+            error.value = null;
 
-                try {
-                    // 获取商品ID
-                    const productId = getProductIdFromUrl();
-                    const orderNo = 0;
+            try {
+                // 获取商品ID
+                const productId = getProductIdFromUrl();
+                const orderNo = 0;
 
-                    // 如果有订单号，优先使用订单号
-                    if (orderNo) {
-                        paymentForm.value.outTradeNo = orderNo;
-                    }
-
-                    // 如果有商品ID，则调用后端接口获取商品信息
-                    if (productId) {
-                        const response = await axios.get(`${API_BASE_URL}/product/info/${productId}`);
-
-                        if (response.data.success) {
-                            const product = response.data.data;
-                            paymentForm.value.subject = product.name || paymentForm.value.subject;
-                            paymentForm.value.body = product.description || paymentForm.value.body;
-                            paymentForm.value.totalAmount = product.price || paymentForm.value.totalAmount;
-
-                            // 如果返回了订单号，使用返回的订单号
-                            if (product.orderNo) {
-                                paymentForm.value.outTradeNo = product.orderNo;
-                            }
-                        } else {
-                            throw new Error(response.data.message || '获取商品信息失败');
-                        }
-                    }
-                } catch (err) {
-                    console.error('加载商品信息失败:', err);
-                    error.value = err.message || '加载商品信息失败';
-                } finally {
-                    loading.value = false;
-                }
-            };
-
-            const submitPayment = async () => {
-                if (!paymentForm.value.outTradeNo || !paymentForm.value.subject ||
-                    !paymentForm.value.totalAmount || parseFloat(paymentForm.value.totalAmount) <= 0) {
-                    ElMessage({
-                        message: '请填写完整的支付信息',
-                        type: 'warning'
-                    });
-                    return;
+                // 如果有订单号，优先使用订单号
+                if (orderNo) {
+                    paymentForm.value.outTradeNo = orderNo;
                 }
 
-                isSubmitting.value = true;
-
-                try {
-                    const response = await axios.post(`${API_BASE_URL}alipay/pay`, paymentForm.value);
+                // 如果有商品ID，则调用后端接口获取商品信息
+                if (productId) {
+                    const response = await axios.get(`${API_BASE_URL}/product/info/${productId}`);
 
                     if (response.data.success) {
-                        // 创建一个临时div来存放返回的表单
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = response.data.data;
-                        const form = tempDiv.querySelector('form');
+                        const product = response.data.data;
+                        paymentForm.value.subject = product.name || paymentForm.value.subject;
+                        paymentForm.value.body = product.description || paymentForm.value.body;
+                        paymentForm.value.totalAmount = product.price || paymentForm.value.totalAmount;
 
-                        if (form) {
-                            // 将表单添加到页面并提交
-                            document.body.appendChild(form);
-                            form.submit();
-                        } else {
-                            ElMessage({
-                                message: '支付请求失败，请重试',
-                                type: 'error'
-                            });
+                        // 如果返回了订单号，使用返回的订单号
+                        if (product.orderNo) {
+                            paymentForm.value.outTradeNo = product.orderNo;
                         }
                     } else {
+                        throw new Error(response.data.message || '获取商品信息失败');
+                    }
+                }
+            } catch (err) {
+                console.error('加载商品信息失败:', err);
+                error.value = err.message || '加载商品信息失败';
+            } finally {
+                loading.value = false;
+            }
+        };
+
+        // 发送邮箱验证码
+        const sendCaptcha = async () => {
+            // 验证邮箱格式
+            if (!captchaState.email) {
+                ElMessage({
+                    message: '请输入邮箱地址',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(captchaState.email)) {
+                ElMessage({
+                    message: '请输入正确的邮箱格式',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            // 检查是否正在倒计时
+            if (captchaState.captchaCountdown > 0) {
+                return;
+            }
+
+            try {
+                const response = await axios.post(`${API_BASE_URL}/email/send-captcha`, {
+                    to: captchaState.email,
+                    orderId: paymentForm.value.outTradeNo
+                });
+
+                if (response.data.success) {
+                    captchaState.isCaptchaSent = true;
+                    startCaptchaCountdown(60); // 60秒倒计时
+                    ElMessage({
+                        message: '验证码已发送至您的邮箱',
+                        type: 'success'
+                    });
+                } else {
+                    ElMessage({
+                        message: response.data.message || '验证码发送失败',
+                        type: 'error'
+                    });
+                }
+            } catch (error) {
+                console.error('发送验证码失败:', error);
+                ElMessage({
+                    message: '验证码发送失败，请稍后重试',
+                    type: 'error'
+                });
+            }
+        };
+
+        // 验证码倒计时
+        const startCaptchaCountdown = (seconds) => {
+            captchaState.captchaCountdown = seconds;
+
+            captchaState.captchaTimer = setInterval(() => {
+                captchaState.captchaCountdown--;
+
+                if (captchaState.captchaCountdown <= 0) {
+                    clearInterval(captchaState.captchaTimer);
+                    captchaState.captchaTimer = null;
+                }
+            }, 1000);
+        };
+
+        // 验证邮箱验证码
+        const verifyCaptcha = async () => {
+            // 重置验证状态
+            captchaState.isCaptchaValid = false;
+            captchaState.validationMessage = '';
+
+            if (!captchaState.email || !captchaState.captcha) {
+                ElMessage({
+                    message: '请填写邮箱和验证码',
+                    type: 'warning'
+                });
+                return false;
+            }
+
+            captchaState.isCaptchaValidating = true;
+
+            try {
+                const response = await axios.post(`${API_BASE_URL}/email/verify-captcha`, {
+                    email: captchaState.email,
+                    orderId: paymentForm.value.outTradeNo,
+                    captcha: captchaState.captcha
+                });
+
+                if (response.data.success) {
+                    captchaState.isCaptchaValid = true;
+                    captchaState.validationMessage = '验证码验证通过';
+                    ElMessage({
+                        message: '验证码验证通过',
+                        type: 'success'
+                    });
+                    return true;
+                } else {
+                    captchaState.isCaptchaValid = false;
+                    captchaState.validationMessage = response.data.message || '验证码错误';
+                    ElMessage({
+                        message: response.data.message || '验证码错误',
+                        type: 'error'
+                    });
+                    return false;
+                }
+            } catch (error) {
+                console.error('验证验证码失败:', error);
+                captchaState.isCaptchaValid = false;
+                captchaState.validationMessage = '验证码验证失败，请稍后重试';
+                ElMessage({
+                    message: '验证码验证失败，请稍后重试',
+                    type: 'error'
+                });
+                return false;
+            } finally {
+                captchaState.isCaptchaValidating = false;
+            }
+        };
+
+        // 单独验证验证码（不提交支付）
+        const validateCaptchaOnly = async () => {
+            // 如果已经验证通过，则不需要再次验证
+            if (captchaState.isCaptchaValid) {
+                return Promise.resolve(true);
+            }
+
+            return await verifyCaptcha();
+        };
+
+        // 提交支付
+        const submitPayment = async () => {
+            if (!paymentForm.value.outTradeNo || !paymentForm.value.subject ||
+                !paymentForm.value.totalAmount || parseFloat(paymentForm.value.totalAmount) <= 0) {
+                ElMessage({
+                    message: '请填写完整的支付信息',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            // 先验证邮箱验证码
+            const isCaptchaValid = await validateCaptchaOnly();
+            if (!isCaptchaValid) {
+                return;
+            }
+
+            isSubmitting.value = true;
+
+            try {
+                const response = await axios.post(`${API_BASE_URL}alipay/pay`, paymentForm.value);
+
+                if (response.data.success) {
+                    // 创建一个临时div来存放返回的表单
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = response.data.data;
+                    const form = tempDiv.querySelector('form');
+
+                    if (form) {
+                        // 将表单添加到页面并提交
+                        document.body.appendChild(form);
+                        form.submit();
+                    } else {
                         ElMessage({
-                            message: response.data.message || '支付请求失败',
+                            message: '支付请求失败，请重试',
                             type: 'error'
                         });
                     }
-                } catch (error) {
-                    console.error('支付请求出错:', error);
+                } else {
                     ElMessage({
-                        message: '支付请求出错，请重试',
+                        message: response.data.message || '支付请求失败',
                         type: 'error'
                     });
-                } finally {
-                    isSubmitting.value = false;
                 }
-            };
+            } catch (error) {
+                console.error('支付请求出错:', error);
+                ElMessage({
+                    message: '支付请求出错，请重试',
+                    type: 'error'
+                });
+            } finally {
+                isSubmitting.value = false;
+            }
+        };
+        // 页面卸载时清理定时器
+        const cleanup = () => {
+            if (captchaState.captchaTimer) {
+                clearInterval(captchaState.captchaTimer);
+            }
+        };
 
-            // 页面加载时获取商品信息
-            onMounted(() => {
-                loadProductInfo();
-            });
+        // 页面加载时获取商品信息
+        onMounted(() => {
+            loadProductInfo();
+            window.addEventListener('beforeunload', cleanup);
+        });
 
-            return {
-                paymentForm,
-                isSubmitting,
-                loading,
-                error,
-                submitPayment,
-                loadProductInfo
-            };
-        }
-    }).use(ElementPlus).mount('#app');
+        // 组件卸载前清理
+        // 注意：Vue 3的生命周期钩子在setup中需要特殊处理
+        // 这里我们依赖beforeunload事件
+
+        return {
+            paymentForm,
+            isSubmitting,
+            loading,
+            error,
+            submitPayment,
+            loadProductInfo,
+            // 验证码相关
+            captchaState,
+            sendCaptcha,
+            verifyCaptcha,
+            validateCaptchaOnly
+        };
+    }
+}).use(ElementPlus).mount('#app');
 </script>
 </body>
 </html>
