@@ -330,9 +330,10 @@
                         <button
                                 type="button"
                                 @click="sendCaptcha"
-                                :disabled="isSubmitting || captchaState.captchaCountdown > 0"
+                                :disabled="isSubmitting || captchaState.captchaCountdown > 0 || captchaState.isCaptchaValidating"
                                 class="btn btn-primary send-captcha-btn">
-                            <span v-if="captchaState.captchaCountdown > 0">{{ captchaState.captchaCountdown }}秒后重发</span>
+                            <span v-if="captchaState.isCaptchaValidating">发送中...</span>
+                            <span v-else-if="captchaState.captchaCountdown > 0">{{ captchaState.captchaCountdown }}秒后重发</span>
                             <span v-else><i class="bi bi-envelope"></i> 获取验证码</span>
                         </button>
                     </div>
@@ -430,12 +431,6 @@ createApp({
             try {
                 // 获取商品ID
                 const productId = getProductIdFromUrl();
-                const orderNo = 0;
-
-                // 如果有订单号，优先使用订单号
-                if (orderNo) {
-                    paymentForm.value.outTradeNo = orderNo;
-                }
 
                 // 如果有商品ID，则调用后端接口获取商品信息
                 if (productId) {
@@ -447,11 +442,6 @@ createApp({
                         paymentForm.value.subject = product.name || paymentForm.value.subject;
                         paymentForm.value.body = product.description || paymentForm.value.body;
                         paymentForm.value.totalAmount = product.price || paymentForm.value.totalAmount;
-
-                        // 如果返回了订单号，使用返回的订单号
-                        if (product.orderNo) {
-                            paymentForm.value.outTradeNo = product.orderNo;
-                        }
                     } else {
                         throw new Error(response.data.message || '获取商品信息失败');
                     }
@@ -484,10 +474,13 @@ createApp({
                 return;
             }
 
-            // 检查是否正在倒计时
-            if (captchaState.captchaCountdown > 0) {
+            // 检查是否正在倒计时或正在发送验证码
+            if (captchaState.captchaCountdown > 0 || captchaState.isCaptchaValidating) {
                 return;
             }
+
+            // 设置正在发送状态
+            captchaState.isCaptchaValidating = true;
 
             try {
                 const response = await axios.post(`${API_BASE_URL}/email/send-captcha`, {
@@ -514,6 +507,9 @@ createApp({
                     message: '验证码发送失败，请稍后重试',
                     type: 'error'
                 });
+            } finally {
+                // 重置发送状态
+                captchaState.isCaptchaValidating = false;
             }
         };
 
@@ -597,7 +593,7 @@ createApp({
 
         // 提交支付
         const submitPayment = async () => {
-            if (!paymentForm.value.outTradeNo || !paymentForm.value.subject || !paymentForm.value.productId ||
+            if (!paymentForm.value.subject || !paymentForm.value.productId ||
                 !paymentForm.value.totalAmount || parseFloat(paymentForm.value.totalAmount) <= 0) {
                 ElMessage({
                     message: '请填写完整的支付信息',

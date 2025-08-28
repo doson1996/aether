@@ -1,12 +1,19 @@
 package com.ds.aether.server.pay;
 
+import javax.annotation.PostConstruct;
+
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradePagePayModel;
+import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.response.AlipayTradePagePayResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,6 +21,7 @@ import org.springframework.stereotype.Service;
  * @date 2025/8/26
  * @description
  */
+@Slf4j
 @Service
 public class AlipaySandboxTradePagePay {
     // 沙箱环境网关地址
@@ -30,20 +38,63 @@ public class AlipaySandboxTradePagePay {
     private static final String FORMAT = "json";
     private static final String SIGN_TYPE = "RSA2";
 
+    // 初始化沙箱环境SDK客户端
+    private AlipayClient alipayClient;
+
+
+    @PostConstruct
+    private void init() {
+        try {
+            alipayClient = new DefaultAlipayClient(getSandboxAlipayConfig());
+        } catch (Exception e) {
+            log.error("支付宝客户端初始化异常", e);
+        }
+    }
+
+    /**
+     * 验证支付是否成功
+     * 支付成功
+     * @param outTradeNo 商户订单号
+     * @param tradeNo    支付宝订单号
+     * @return
+     * @throws AlipayApiException
+     */
+    public Boolean paymentSuccessful(String outTradeNo, String tradeNo) throws AlipayApiException {
+        return PaymentStatus.SUCCESS.equals(paymentStatus(outTradeNo, tradeNo));
+    }
+
+    /**
+     * 验证支付结果
+     *
+     * @param outTradeNo 商户订单号
+     * @param tradeNo    支付宝订单号
+     * @return
+     * @throws AlipayApiException
+     */
+    public String paymentStatus(String outTradeNo, String tradeNo) throws AlipayApiException {
+        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+        AlipayTradeQueryModel alipayTradeQueryModel = new AlipayTradeQueryModel();
+        alipayTradeQueryModel.setTradeNo(tradeNo);
+        alipayTradeQueryModel.setOutTradeNo(outTradeNo);
+        alipayTradeQueryModel.setQueryOptions(Lists.newArrayList("trade_settle_info"));
+        request.setBizModel(alipayTradeQueryModel);
+        AlipayTradeQueryResponse alipayTradeQueryResponse = alipayClient.execute(request);
+        return alipayTradeQueryResponse.getTradeStatus();
+    }
+
     /**
      * 创建支付页面
-     * @param outTradeNo 商户订单号
+     *
+     * @param outTradeNo  商户订单号
      * @param totalAmount 订单总金额
-     * @param subject 订单标题
-     * @param body 订单描述
+     * @param subject     订单标题
+     * @param body        订单描述
+     * @param timeExpire  订单有效时间
      * @return 支付页面HTML
      * @throws AlipayApiException
      */
     public String createPayment(String outTradeNo, String totalAmount,
-                                String subject, String body) throws AlipayApiException {
-        // 初始化沙箱环境SDK客户端
-        AlipayClient alipayClient = new DefaultAlipayClient(getSandboxAlipayConfig());
-
+                                String subject, String body, String timeExpire) throws AlipayApiException {
         // 构造请求参数
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         // 同步回调地址
@@ -58,6 +109,8 @@ public class AlipaySandboxTradePagePay {
         model.setBody(body);
         model.setProductCode("FAST_INSTANT_TRADE_PAY");
 
+        // 订单有效时间
+        model.setTimeExpire(timeExpire);
         request.setBizModel(model);
 
         // 执行支付请求
@@ -67,6 +120,7 @@ public class AlipaySandboxTradePagePay {
 
     /**
      * 获取沙箱环境配置
+     *
      * @return AlipayConfig
      */
     public AlipayConfig getSandboxAlipayConfig() {

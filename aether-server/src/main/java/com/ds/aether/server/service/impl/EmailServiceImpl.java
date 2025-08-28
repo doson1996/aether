@@ -14,9 +14,11 @@ import com.ds.aether.server.constant.MailTemplate;
 import com.ds.aether.server.model.dto.SendCaptchaRequest;
 import com.ds.aether.server.model.dto.SendMailRequest;
 import com.ds.aether.server.model.dto.VerifyCaptchaRequest;
+import com.ds.aether.server.repo.MongoRepo;
 import com.ds.aether.server.service.CaptchaService;
 import com.ds.aether.server.service.EmailService;
 import com.ds.aether.server.service.LimitService;
+import com.ds.aether.server.util.EmailUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -54,10 +56,25 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username:doson1996@vip.qq.com}")
     private String from;
 
+    @Resource
+    private MongoRepo mongoRepo;
+
     @Override
     public boolean sendHtmlMail(SendMailRequest request) {
         MimeMessage message = mailSender.createMimeMessage();
         try {
+            String to = request.getTo();
+            if (StrUtil.isBlank(to)) {
+                log.warn("收件人邮箱不能为空");
+                return false;
+            }
+
+            // 判断是不是邮箱格式
+            if (!EmailUtil.isValidEmail(to)) {
+                log.warn("邮箱格式不正确: {}", to);
+                return false;
+            }
+
             //创建邮件正文
             Context context = new Context();
             context.setVariables(request.getVariables());
@@ -66,7 +83,7 @@ public class EmailServiceImpl implements EmailService {
             //true表示需要创建一个multipart message
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(from);
-            helper.setTo(request.getTo());
+            helper.setTo(to);
             helper.setSubject(request.getSubject());
             helper.setText(emailContent, true);
 
@@ -82,7 +99,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public Result<String> sendCaptcha(SendCaptchaRequest request) {
-        request.setExpire(1);
+        request.setExpire(5);
         request.setOperate("购买aether服务");
         request.setSubject("支付验证码");
 
@@ -93,13 +110,16 @@ public class EmailServiceImpl implements EmailService {
         // 判断是否限制发送频率
         if (limitService.getLimit(limitKey)) {
             return Result.fail("邮件发送失败", "请勿频繁请求发送邮箱验证码");
+        } else {
+            // 存放邮箱到发送频率限制key中（一分钟内不可再次发送）
+            limitService.setLimit(limitKey);
         }
 
         // 生成验证码
         String captcha = captchaService.generate();
         // 验证码有效期
         Long expire = captchaService.getExpire(request.getExpire());
-        Map<String, Object> variables = new HashMap<>(16);
+        Map<String, Object> variables = new HashMap<>();
         variables.put("operate", request.getOperate());
         variables.put("expire", expire);
         variables.put("verifyCode", captcha);
@@ -145,7 +165,5 @@ public class EmailServiceImpl implements EmailService {
         long keyExpire = request.getExpire() * DateUnit.MINUTE.getSecond();
         // 存放邮箱和验证码到redis并设置过期时间
         captchaService.save(key, captcha, keyExpire);
-        // 存放邮箱到发送频率限制key中（发送成功后，一分钟内不可再次发送）
-        limitService.setLimit(limitKey);
     }
 }
