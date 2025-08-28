@@ -28,14 +28,14 @@ public class PageController {
     @GetMapping("/add-job")
     public String addJobPage(Model model) {
         model.addAttribute("title", "添加任务");
-        return "add-job";
+        return "job/add-job";
     }
 
     @AccessLog(module = "页面控制", operation = "编辑任务页")
     @GetMapping("/edit-job")
     public String editJob(Model model) {
         model.addAttribute("title", "编辑任务");
-        return "edit-job";
+        return "job/edit-job";
     }
 
     @AccessLog(module = "页面控制", operation = "显示购买产品页面")
@@ -47,7 +47,7 @@ public class PageController {
     @AccessLog(module = "页面控制", operation = "显示支付页面")
     @GetMapping("/payment")
     public String showPaymentPage() {
-        return "alipay/payment";
+        return "pay/payment";
     }
 
 }

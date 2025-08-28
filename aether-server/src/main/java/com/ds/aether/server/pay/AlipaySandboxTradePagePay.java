@@ -1,6 +1,8 @@
 package com.ds.aether.server.pay;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
@@ -41,6 +43,8 @@ public class AlipaySandboxTradePagePay {
     // 初始化沙箱环境SDK客户端
     private AlipayClient alipayClient;
 
+    @Resource
+    private HttpServletRequest request;
 
     @PostConstruct
     private void init() {

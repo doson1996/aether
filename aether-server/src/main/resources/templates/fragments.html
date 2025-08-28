@@ -86,8 +86,8 @@
             <span class="navbar-text ms-3" th:unless="${weatherInfo}">天气信息获取中...</span>
             <a class="nav-link" th:classappend="${currentPage == 'index' ? 'active' : ''}" href="/api/page/">首页</a>
             <a class="nav-link" th:classappend="${currentPage == 'add-job' ? 'active' : ''}" href="/api/page/add-job">添加任务</a>
-            <li class="nav-item" th:classappend="${currentPage == 'products'} ? 'active'">
-                <a class="nav-link" th:href="@{/page/products}">
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${currentPage == 'pay'} ? 'active'" th:href="@{/page/products}">
                     <i class="bi bi-cart-check"></i> 购买服务
                 </a>
             </li>

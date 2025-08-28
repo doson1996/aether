@@ -72,7 +72,7 @@
 <div id="app">
     <div class="container-fluid">
         <!-- 导航栏 -->
-        <div th:replace="~{fragments :: navbar(currentPage='alipay')}"></div>
+        <div th:replace="~{fragments :: navbar(currentPage='pay')}"></div>
 
         <div class="result-container">
             <div th:if="${success}" class="success-icon">
@@ -105,8 +105,8 @@
                 <span th:text="${tradeNo}"></span>
             </div>
 
-            <a href="/api/page/payment" class="btn-primary">
-                <i class="bi bi-arrow-left"></i> 继续支付
+            <a href="/api/page/" class="btn-primary">
+                <i class="bi bi-arrow-left"></i> 返回首页
             </a>
         </div>
     </div>
