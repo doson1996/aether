@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 支付宝支付控制器
+ * todo 状态机控制支付流程
  */
 @Slf4j
 @Controller
