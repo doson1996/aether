@@ -1,6 +1,7 @@
 package com.ds.aether.server.config;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -23,6 +24,10 @@ public class LoginInterceptor implements HandlerInterceptor {
             // 获取请求的URI
             String requestURI = request.getRequestURI();
 
+            if (StrUtil.isEmpty(requestURI)) {
+                return false;
+            }
+
             // 允许访问的路径（无需登录）
             if (requestURI.startsWith("/api/auth") ||
                     "/login".equals(requestURI) ||
@@ -38,14 +43,12 @@ public class LoginInterceptor implements HandlerInterceptor {
             if (StpUtil.isLogin()) {
                 return true;
             }
-
-            // 未登录，重定向到登录页
-            String redirectUrl = "/api/page/login";
-            response.sendRedirect(redirectUrl);
         } catch (Exception e) {
             log.error("检查是否已登录异常：", e);
         }
-
+        // 未登录，重定向到登录页
+        String redirectUrl = "/api/page/login";
+        response.sendRedirect(redirectUrl);
         return false;
     }
 

@@ -83,6 +83,17 @@
             font-size: 0.875rem;
             margin-top: 0.25rem;
         }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 1rem;
+            cursor: pointer;
+            color: #667eea;
+        }
+
+        .switch-form:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -94,10 +105,11 @@
                     <i class="bi bi-lightning-charge"></i>
                 </div>
                 <h2>Aether 调度系统</h2>
-                <p>请登录您的账户</p>
+                <p>{{ isLogin ? '请登录您的账户' : '创建新账户' }}</p>
             </div>
 
-            <form @submit.prevent="handleLogin">
+            <!-- 登录表单 -->
+            <form v-if="isLogin" @submit.prevent="handleLogin">
                 <div class="form-group">
                     <label class="form-label">用户名</label>
                     <el-input
@@ -105,7 +117,7 @@
                             placeholder="请输入用户名"
                             size="large"
                             clearable
-                          >
+                    >
                     </el-input>
                     <div class="error-message" v-if="errors.username">{{ errors.username }}</div>
                 </div>
@@ -118,14 +130,10 @@
                             placeholder="请输入密码"
                             size="large"
                             show-password
-                            >
+                    >
                     </el-input>
                     <div class="error-message" v-if="errors.password">{{ errors.password }}</div>
                 </div>
-
-<!--                <div class="form-group">-->
-<!--                    <el-checkbox v-model="rememberMe">记住我</el-checkbox>-->
-<!--                </div>-->
 
                 <el-button
                         type="primary"
@@ -135,6 +143,64 @@
                         size="large">
                     {{ loading ? '登录中...' : '登录' }}
                 </el-button>
+
+                <div class="switch-form" @click="switchToRegister">
+                    没有账户？点击注册
+                </div>
+            </form>
+
+            <!-- 注册表单 -->
+            <form v-else @submit.prevent="handleRegister">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <el-input
+                            v-model="registerForm.username"
+                            placeholder="请输入用户名"
+                            size="large"
+                            clearable
+                    >
+                    </el-input>
+                    <div class="error-message" v-if="registerErrors.username">{{ registerErrors.username }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <el-input
+                            v-model="registerForm.password"
+                            type="password"
+                            placeholder="请输入密码"
+                            size="large"
+                            show-password
+                    >
+                    </el-input>
+                    <div class="error-message" v-if="registerErrors.password">{{ registerErrors.password }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">确认密码</label>
+                    <el-input
+                            v-model="registerForm.confirmPassword"
+                            type="password"
+                            placeholder="请再次输入密码"
+                            size="large"
+                            show-password
+                    >
+                    </el-input>
+                    <div class="error-message" v-if="registerErrors.confirmPassword">{{ registerErrors.confirmPassword }}</div>
+                </div>
+
+                <el-button
+                        type="primary"
+                        class="login-btn"
+                        @click="handleRegister"
+                        :loading="loading"
+                        size="large">
+                    {{ loading ? '注册中...' : '注册' }}
+                </el-button>
+
+                <div class="switch-form" @click="switchToLogin">
+                    已有账户？点击登录
+                </div>
             </form>
 
             <div class="text-center mt-4 text-muted" style="font-size: 0.875rem;">
@@ -153,14 +219,29 @@
 
     createApp({
         setup() {
+            // 控制显示登录还是注册表单
+            const isLogin = ref(true);
+
             const loginForm = reactive({
                 username: '',
                 password: ''
             });
 
+            const registerForm = reactive({
+                username: '',
+                password: '',
+                confirmPassword: ''
+            });
+
             const errors = reactive({
                 username: '',
                 password: ''
+            });
+
+            const registerErrors = reactive({
+                username: '',
+                password: '',
+                confirmPassword: ''
             });
 
             const loading = ref(false);
@@ -193,7 +274,7 @@
             };
 
             // 表单验证
-            const validateForm = () => {
+            const validateLoginForm = () => {
                 let isValid = true;
 
                 // 重置错误信息
@@ -218,9 +299,48 @@
                 return isValid;
             };
 
+            // 注册表单验证
+            const validateRegisterForm = () => {
+                let isValid = true;
+
+                // 重置错误信息
+                registerErrors.username = '';
+                registerErrors.password = '';
+                registerErrors.confirmPassword = '';
+
+                // 验证用户名
+                if (!registerForm.username.trim()) {
+                    registerErrors.username = '请输入用户名';
+                    isValid = false;
+                } else if (registerForm.username.length < 3) {
+                    registerErrors.username = '用户名长度不能少于3位';
+                    isValid = false;
+                }
+
+                // 验证密码
+                if (!registerForm.password) {
+                    registerErrors.password = '请输入密码';
+                    isValid = false;
+                } else if (registerForm.password.length < 6) {
+                    registerErrors.password = '密码长度不能少于6位';
+                    isValid = false;
+                }
+
+                // 验证确认密码
+                if (!registerForm.confirmPassword) {
+                    registerErrors.confirmPassword = '请再次输入密码';
+                    isValid = false;
+                } else if (registerForm.password !== registerForm.confirmPassword) {
+                    registerErrors.confirmPassword = '两次输入的密码不一致';
+                    isValid = false;
+                }
+
+                return isValid;
+            };
+
             // 处理登录
             const handleLogin = async () => {
-                if (!validateForm()) {
+                if (!validateLoginForm()) {
                     return;
                 }
 
@@ -284,6 +404,67 @@
                 }
             };
 
+            // 处理注册
+            const handleRegister = async () => {
+                if (!validateRegisterForm()) {
+                    return;
+                }
+
+                if (!publicKey.value) {
+                    ElMessage({
+                        message: '系统初始化中，请稍后重试',
+                        type: 'warning'
+                    });
+                    return;
+                }
+
+                loading.value = true;
+
+                try {
+                    // 加密密码
+                    const encryptedPassword = encryptPassword(registerForm.password);
+
+                    if (!encryptedPassword) {
+                        throw new Error('密码加密失败');
+                    }
+
+                    const response = await axios.post(`${API_BASE_URL}auth/register`, {
+                        username: registerForm.username,
+                        password: encryptedPassword,
+                        encrypted: true
+                    });
+
+                    if (response.data.success) {
+                        // 显示成功消息
+                        ElMessage({
+                            message: '注册成功',
+                            type: 'success',
+                            duration: 1500
+                        });
+
+                        // 切换到登录表单
+                        setTimeout(() => {
+                            isLogin.value = true;
+                            // 将注册的用户名填入登录表单
+                            loginForm.username = registerForm.username;
+                        }, 1500);
+                    } else {
+                        ElMessage({
+                            message: response.data.message || '注册失败',
+                            type: 'error'
+                        });
+                    }
+                } catch (error) {
+                    console.error('注册错误:', error);
+                    ElMessage({
+                        message: error.message || '注册请求失败，请稍后重试',
+                        type: 'error'
+                    });
+                } finally {
+                    loading.value = false;
+                }
+            };
+
             // 页面加载时检查是否记住用户名
             const initForm = () => {
                 const savedUsername = localStorage.getItem('username');
@@ -293,6 +474,20 @@
                 }
             };
 
+            // 切换到注册表单
+            const switchToRegister = () => {
+                isLogin.value = false;
+                // 清除错误信息
+                Object.keys(registerErrors).forEach(key => registerErrors[key] = '');
+            };
+
+            // 切换到登录表单
+            const switchToLogin = () => {
+                isLogin.value = true;
+                // 清除错误信息
+                Object.keys(errors).forEach(key => errors[key] = '');
+            };
+
             // 初始化
             onMounted(() => {
                 initForm();
@@ -300,11 +495,17 @@
             });
 
             return {
+                isLogin,
                 loginForm,
+                registerForm,
                 errors,
+                registerErrors,
                 loading,
                 rememberMe,
-                handleLogin
+                handleLogin,
+                handleRegister,
+                switchToRegister,
+                switchToLogin
             };
         }
     }).use(ElementPlus).mount('#app');
