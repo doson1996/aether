@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录 - Aether 任务调度系统</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <!-- 本地化的CSS文件 -->
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap-icons.css}" rel="stylesheet">
+    <link th:href="@{/css/element-plus.css}" rel="stylesheet">
+
+    <!-- 本地化的JS文件 -->
+    <script th:src="@{/js/vue.global.js}"></script>
+    <script th:src="@{/js/element-plus.js}"></script>
+    <script th:src="@{/js/axios.min.js}"></script>
+    <script th:src="@{/js/jsencrypt.min.js}"></script>
+
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .login-header p {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .error-message {
+            color: #f56565;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="login-container">
+        <div class="login-card bg-white">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+                <h2>Aether 调度系统</h2>
+                <p>请登录您的账户</p>
+            </div>
+
+            <form @submit.prevent="handleLogin">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <el-input
+                            v-model="loginForm.username"
+                            placeholder="请输入用户名"
+                            size="large"
+                            clearable
+                          >
+                    </el-input>
+                    <div class="error-message" v-if="errors.username">{{ errors.username }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <el-input
+                            v-model="loginForm.password"
+                            type="password"
+                            placeholder="请输入密码"
+                            size="large"
+                            show-password
+                            >
+                    </el-input>
+                    <div class="error-message" v-if="errors.password">{{ errors.password }}</div>
+                </div>
+
+<!--                <div class="form-group">-->
+<!--                    <el-checkbox v-model="rememberMe">记住我</el-checkbox>-->
+<!--                </div>-->
+
+                <el-button
+                        type="primary"
+                        class="login-btn"
+                        @click="handleLogin"
+                        :loading="loading"
+                        size="large">
+                    {{ loading ? '登录中...' : '登录' }}
+                </el-button>
+            </form>
+
+            <div class="text-center mt-4 text-muted" style="font-size: 0.875rem;">
+                <p>© 2025 Aether 任务调度系统. 保留所有权利.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const { createApp, ref, reactive, onMounted } = Vue;
+    const { ElMessage } = ElementPlus;
+
+    // API基础URL配置
+    const API_BASE_URL = /*[[@{/}]]*/ 'http://localhost:23843';
+
+    createApp({
+        setup() {
+            const loginForm = reactive({
+                username: '',
+                password: ''
+            });
+
+            const errors = reactive({
+                username: '',
+                password: ''
+            });
+
+            const loading = ref(false);
+            const rememberMe = ref(false);
+            const publicKey = ref('');
+
+            // 获取公钥
+            const getPublicKey = async () => {
+                try {
+                    const response = await axios.get(`${API_BASE_URL}auth/public-key`);
+                    publicKey.value = response.data.data;
+                } catch (error) {
+                    console.error('获取公钥失败:', error);
+                    ElMessage({
+                        message: '系统初始化失败，请刷新页面重试',
+                        type: 'error'
+                    });
+                }
+            };
+
+            // 使用RSA加密密码
+            const encryptPassword = (password) => {
+                if (!publicKey.value) {
+                    throw new Error('公钥未获取');
+                }
+
+                const encrypt = new JSEncrypt();
+                encrypt.setPublicKey(publicKey.value);
+                return encrypt.encrypt(password);
+            };
+
+            // 表单验证
+            const validateForm = () => {
+                let isValid = true;
+
+                // 重置错误信息
+                errors.username = '';
+                errors.password = '';
+
+                // 验证用户名
+                if (!loginForm.username.trim()) {
+                    errors.username = '请输入用户名';
+                    isValid = false;
+                }
+
+                // 验证密码
+                if (!loginForm.password) {
+                    errors.password = '请输入密码';
+                    isValid = false;
+                } else if (loginForm.password.length < 6) {
+                    errors.password = '密码长度不能少于6位';
+                    isValid = false;
+                }
+
+                return isValid;
+            };
+
+            // 处理登录
+            const handleLogin = async () => {
+                if (!validateForm()) {
+                    return;
+                }
+
+                if (!publicKey.value) {
+                    ElMessage({
+                        message: '系统初始化中，请稍后重试',
+                        type: 'warning'
+                    });
+                    return;
+                }
+
+                loading.value = true;
+
+                try {
+                    // 加密密码
+                    const encryptedPassword = encryptPassword(loginForm.password);
+
+                    if (!encryptedPassword) {
+                        throw new Error('密码加密失败');
+                    }
+
+                    const response = await axios.post(`${API_BASE_URL}auth/login`, {
+                        username: loginForm.username,
+                        password: encryptedPassword,
+                        encrypted: true
+                    });
+
+                    if (response.data.success) {
+                        // 保存登录状态（如果选择了记住我）
+                        if (rememberMe.value) {
+                            localStorage.setItem('username', loginForm.username);
+                        } else {
+                            localStorage.removeItem('username');
+                        }
+
+                        // 显示成功消息
+                        ElMessage({
+                            message: '登录成功',
+                            type: 'success',
+                            duration: 1500
+                        });
+
+                        // 跳转到主页
+                        setTimeout(() => {
+                            window.location.href = '/api/page/';
+                        }, 1500);
+                    } else {
+                        ElMessage({
+                            message: response.data.message || '登录失败',
+                            type: 'error'
+                        });
+                    }
+                } catch (error) {
+                    console.error('登录错误:', error);
+                    ElMessage({
+                        message: error.message || '登录请求失败，请稍后重试',
+                        type: 'error'
+                    });
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            // 页面加载时检查是否记住用户名
+            const initForm = () => {
+                const savedUsername = localStorage.getItem('username');
+                if (savedUsername) {
+                    loginForm.username = savedUsername;
+                    rememberMe.value = true;
+                }
+            };
+
+            // 初始化
+            onMounted(() => {
+                initForm();
+                getPublicKey();
+            });
+
+            return {
+                loginForm,
+                errors,
+                loading,
+                rememberMe,
+                handleLogin
+            };
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

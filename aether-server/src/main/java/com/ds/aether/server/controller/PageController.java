@@ -24,6 +24,12 @@ public class PageController {
         return "index";
     }
 
+    @AccessLog(module = "页面控制", operation = "登录页")
+    @GetMapping("/login")
+    public String loginPage(Model model) {
+        return "auth/login";
+    }
+
     @AccessLog(module = "页面控制", operation = "添加任务页")
     @GetMapping("/add-job")
     public String addJobPage(Model model) {
