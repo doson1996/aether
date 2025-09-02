@@ -35,6 +35,12 @@ public interface UserService {
      */
     Result save(String username, String encryptedPassword);
 
-
+    /**
+     * 获取用户信息
+     *
+     * @param id
+     * @return
+     */
+    User findById(String id);
 
 }

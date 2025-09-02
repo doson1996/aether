@@ -56,4 +56,14 @@ public class UserServiceImpl implements UserService {
         mongoRepo.insert(USER_TABLE, Document.parse(JSON.toJSONString(user)));
         return Result.ok("注册成功!");
     }
+
+    @Override
+    public User findById(String id) {
+        Document document = mongoRepo.findOne(USER_TABLE, Filters.and(Filters.eq("id", id)));
+        if (document == null) {
+            return null;
+        }
+        return JSON.parseObject(document.toJson(), User.class);
+    }
+    
 }

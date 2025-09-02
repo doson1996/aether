@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
 </head>
+
 <body>
 <!-- 导航栏片段 -->
 <nav th:fragment="navbar (currentPage)" class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -10,87 +11,117 @@
         <a class="navbar-brand" href="/api/page/">
             <i class="bi bi-clock-history"></i> Aether 任务调度系统
         </a>
-        <div class="navbar-nav ms-auto">
-            <!-- 天气展示区域 -->
-            <span class="navbar-text ms-3 d-flex align-items-center" th:if="${weatherInfo}">
-                <!-- 晴天图标 -->
-                <span th:if="${weatherInfo.contains('晴')}">
-                    <i class="bi bi-sun weather-icon"></i>
-                </span>
-                <!-- 多云图标 -->
-                <span th:if="${weatherInfo.contains('多云')}">
-                    <i class="bi bi-clouds weather-icon"></i>
-                </span>
-                <!-- 阴天图标 -->
-                <span th:if="${weatherInfo.contains('阴')}">
-                    <i class="bi bi-cloud weather-icon"></i>
-                </span>
-                <!-- 雷阵雨图标 -->
-                <span th:if="${weatherInfo.contains('雷阵雨')}">
-                    <i class="bi bi-cloud-lightning-rain weather-icon"></i>
-                </span>
-                <!-- 阵雨图标 -->
-                <span th:if="${weatherInfo.contains('阵雨')}">
-                    <i class="bi bi-cloud-rain-heavy weather-icon"></i>
-                </span>
-                <!-- 暴雨图标 -->
-                <span th:if="${weatherInfo.contains('暴雨')}">
-                    <i class="bi bi-cloud-rain-heavy weather-icon"></i>
-                </span>
-                <!-- 大雨图标 -->
-                <span th:if="${weatherInfo.contains('大雨')}">
-                    <i class="bi bi-cloud-rain-heavy weather-icon"></i>
-                </span>
-                <!-- 中雨图标 -->
-                <span th:if="${weatherInfo.contains('中雨')}">
-                    <i class="bi bi-cloud-rain weather-icon"></i>
-                </span>
-                <!-- 小雨图标 -->
-                <span th:if="${weatherInfo.contains('小雨')}">
-                    <i class="bi bi-cloud-drizzle weather-icon"></i>
-                </span>
-                <!-- 雨天图标（通用） -->
-                <span th:if="${weatherInfo.contains('雨') && !weatherInfo.contains('小雨') && !weatherInfo.contains('中雨') && !weatherInfo.contains('大雨') && !weatherInfo.contains('暴雨') && !weatherInfo.contains('阵雨') && !weatherInfo.contains('雷阵雨')}">
-                    <i class="bi bi-cloud-rain weather-icon"></i>
-                </span>
-                <!-- 大雪图标 -->
-                <span th:if="${weatherInfo.contains('大雪')}">
-                    <i class="bi bi-cloud-snow-fill weather-icon"></i>
-                </span>
-                <!-- 小雪图标 -->
-                <span th:if="${weatherInfo.contains('小雪')}">
-                    <i class="bi bi-cloud-snow weather-icon"></i>
-                </span>
-                <!-- 雪天图标（通用） -->
-                <span th:if="${weatherInfo.contains('雪') && !weatherInfo.contains('小雪') && !weatherInfo.contains('大雪')}">
-                    <i class="bi bi-cloud-snow weather-icon"></i>
-                </span>
-                <!-- 雾天图标 -->
-                <span th:if="${weatherInfo.contains('雾')}">
-                    <i class="bi bi-cloud-fog weather-icon"></i>
-                </span>
-                <!-- 霾天图标 -->
-                <span th:if="${weatherInfo.contains('霾')}">
-                    <i class="bi bi-cloud-haze weather-icon"></i>
-                </span>
-                <!-- 沙尘暴图标 -->
-                <span th:if="${weatherInfo.contains('沙尘暴')}">
-                    <i class="bi bi-wind weather-icon"></i>
-                </span>
-                <!-- 默认云朵图标 -->
-                <span th:if="${!weatherInfo.contains('晴') && !weatherInfo.contains('多云') && !weatherInfo.contains('阴') && !weatherInfo.contains('雨') && !weatherInfo.contains('雪') && !weatherInfo.contains('雾') && !weatherInfo.contains('霾') && !weatherInfo.contains('沙尘暴')}">
-                    <i class="bi bi-cloud weather-icon"></i>
-                </span>
-                <span class="ms-1" th:text="${weatherInfo}"></span>
-            </span>
-            <span class="navbar-text ms-3" th:unless="${weatherInfo}">天气信息获取中...</span>
-            <a class="nav-link" th:classappend="${currentPage == 'index' ? 'active' : ''}" href="/api/page/">首页</a>
-            <a class="nav-link" th:classappend="${currentPage == 'add-job' ? 'active' : ''}" href="/api/page/add-job">添加任务</a>
-            <li class="nav-item">
-                <a class="nav-link" th:classappend="${currentPage == 'pay'} ? 'active'" th:href="@{/page/products}">
+
+        <!-- 折叠按钮 -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav">
+                <a class="nav-link" th:classappend="${currentPage == 'index' ? 'active' : ''}" href="/api/page/">首页</a>
+                <a class="nav-link" th:classappend="${currentPage == 'add-job' ? 'active' : ''}" href="/api/page/add-job">添加任务</a>
+                <a class="nav-link" th:classappend="${currentPage == 'pay' ? 'active' : ''}" th:href="@{/page/products}">
                     <i class="bi bi-cart-check"></i> 购买服务
                 </a>
-            </li>
+            </div>
+
+            <!-- 右侧用户信息和菜单 -->
+            <div class="navbar-nav ms-auto align-items-center">
+                <!-- 天气展示区域 -->
+                <span class="navbar-text ms-3 d-flex align-items-center" th:if="${weatherInfo}">
+                    <!-- 晴天图标 -->
+                    <span th:if="${weatherInfo.contains('晴')}">
+                        <i class="bi bi-sun weather-icon"></i>
+                    </span>
+                    <!-- 多云图标 -->
+                    <span th:if="${weatherInfo.contains('多云')}">
+                        <i class="bi bi-clouds weather-icon"></i>
+                    </span>
+                    <!-- 阴天图标 -->
+                    <span th:if="${weatherInfo.contains('阴')}">
+                        <i class="bi bi-cloud weather-icon"></i>
+                    </span>
+                    <!-- 雷阵雨图标 -->
+                    <span th:if="${weatherInfo.contains('雷阵雨')}">
+                        <i class="bi bi-cloud-lightning-rain weather-icon"></i>
+                    </span>
+                    <!-- 阵雨图标 -->
+                    <span th:if="${weatherInfo.contains('阵雨')}">
+                        <i class="bi bi-cloud-rain-heavy weather-icon"></i>
+                    </span>
+                    <!-- 暴雨图标 -->
+                    <span th:if="${weatherInfo.contains('暴雨')}">
+                        <i class="bi bi-cloud-rain-heavy weather-icon"></i>
+                    </span>
+                    <!-- 大雨图标 -->
+                    <span th:if="${weatherInfo.contains('大雨')}">
+                        <i class="bi bi-cloud-rain-heavy weather-icon"></i>
+                    </span>
+                    <!-- 中雨图标 -->
+                    <span th:if="${weatherInfo.contains('中雨')}">
+                        <i class="bi bi-cloud-rain weather-icon"></i>
+                    </span>
+                    <!-- 小雨图标 -->
+                    <span th:if="${weatherInfo.contains('小雨')}">
+                        <i class="bi bi-cloud-drizzle weather-icon"></i>
+                    </span>
+                    <!-- 雨天图标（通用） -->
+                    <span th:if="${weatherInfo.contains('雨') && !weatherInfo.contains('小雨') && !weatherInfo.contains('中雨') && !weatherInfo.contains('大雨') && !weatherInfo.contains('暴雨') && !weatherInfo.contains('阵雨') && !weatherInfo.contains('雷阵雨')}">
+                        <i class="bi bi-cloud-rain weather-icon"></i>
+                    </span>
+                    <!-- 大雪图标 -->
+                    <span th:if="${weatherInfo.contains('大雪')}">
+                        <i class="bi bi-cloud-snow-fill weather-icon"></i>
+                    </span>
+                    <!-- 小雪图标 -->
+                    <span th:if="${weatherInfo.contains('小雪')}">
+                        <i class="bi bi-cloud-snow weather-icon"></i>
+                    </span>
+                    <!-- 雪天图标（通用） -->
+                    <span th:if="${weatherInfo.contains('雪') && !weatherInfo.contains('小雪') && !weatherInfo.contains('大雪')}">
+                        <i class="bi bi-cloud-snow weather-icon"></i>
+                    </span>
+                    <!-- 雾天图标 -->
+                    <span th:if="${weatherInfo.contains('雾')}">
+                        <i class="bi bi-cloud-fog weather-icon"></i>
+                    </span>
+                    <!-- 霾天图标 -->
+                    <span th:if="${weatherInfo.contains('霾')}">
+                        <i class="bi bi-cloud-haze weather-icon"></i>
+                    </span>
+                    <!-- 沙尘暴图标 -->
+                    <span th:if="${weatherInfo.contains('沙尘暴')}">
+                        <i class="bi bi-wind weather-icon"></i>
+                    </span>
+                    <!-- 默认云朵图标 -->
+                    <span th:if="${!weatherInfo.contains('晴') && !weatherInfo.contains('多云') && !weatherInfo.contains('阴') && !weatherInfo.contains('雨') && !weatherInfo.contains('雪') && !weatherInfo.contains('雾') && !weatherInfo.contains('霾') && !weatherInfo.contains('沙尘暴')}">
+                        <i class="bi bi-cloud weather-icon"></i>
+                    </span>
+                    <span class="ms-1" th:text="${weatherInfo}"></span>
+                </span>
+                <span class="navbar-text ms-3" th:unless="${weatherInfo}">天气信息获取中...</span>
+
+                <!-- 用户信息下拉菜单 -->
+                <div class="nav-item dropdown" th:if="${username}">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span th:text="${username}">用户名</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/api/page/profile"><i class="bi bi-person"></i> 个人资料</a></li>
+                        <li><a class="dropdown-item" href="/api/page/settings"><i class="bi bi-gear"></i> 系统设置</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/api/auth/logout"><i class="bi bi-box-arrow-right"></i> 退出登录</a></li>                    </ul>
+                </div>
+
+                <!-- 未登录状态显示登录链接 -->
+                <div class="nav-item" th:unless="${username}">
+                    <a class="nav-link" href="/api/auth/login">
+                        <i class="bi bi-box-arrow-in-right"></i> 登录
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </nav>

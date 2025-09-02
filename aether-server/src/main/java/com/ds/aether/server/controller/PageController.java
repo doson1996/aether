@@ -1,6 +1,10 @@
 package com.ds.aether.server.controller;
 
+import javax.annotation.Resource;
+
+import cn.dev33.satoken.annotation.SaIgnore;
 import com.ds.aether.server.log.AccessLog;
+import com.ds.aether.server.util.LoginUtil;
 import com.ds.aether.server.util.WeatherUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,14 +20,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/page")
 public class PageController {
 
+    @Resource
+    private LoginUtil loginUtil;
+
     @AccessLog(module = "页面控制", operation = "主页")
     @GetMapping("/")
     public String indexPage(Model model) {
         model.addAttribute("title", "主页");
         model.addAttribute("weatherInfo", WeatherUtil.getLiveWeather("重庆市"));
+        model.addAttribute("username", loginUtil.getUsername());
         return "index";
     }
 
+    @SaIgnore
     @AccessLog(module = "页面控制", operation = "登录页")
     @GetMapping("/login")
     public String loginPage(Model model) {

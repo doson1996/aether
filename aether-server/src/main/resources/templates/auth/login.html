@@ -3,17 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>登录 - Aether 任务调度系统</title>
-    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
-    <!-- 本地化的CSS文件 -->
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <link th:href="@{/css/bootstrap-icons.css}" rel="stylesheet">
-    <link th:href="@{/css/element-plus.css}" rel="stylesheet">
-
-    <!-- 本地化的JS文件 -->
-    <script th:src="@{/js/vue.global.js}"></script>
-    <script th:src="@{/js/element-plus.js}"></script>
-    <script th:src="@{/js/axios.min.js}"></script>
-    <script th:src="@{/js/jsencrypt.min.js}"></script>
+    <div th:replace="~{common/css :: css}"></div>
 
     <style>
         .login-container {
@@ -208,6 +198,8 @@
             </div>
         </div>
     </div>
+
+    <div th:replace="~{common/js :: js}"></div>
 </div>
 
 <script th:inline="javascript">

@@ -3,13 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>支付 - Aether 任务调度系统</title>
-    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <link th:href="@{/css/bootstrap-icons.css}" rel="stylesheet">
-    <link th:href="@{/css/element-plus.css}" rel="stylesheet">
-    <script th:src="@{/js/vue.global.js}"></script>
-    <script th:src="@{/js/element-plus.js}"></script>
-    <script th:src="@{/js/axios.min.js}"></script>
+    <div th:replace="~{common/css :: css}"></div>
     <style>
         /* 验证消息样式 */
         .validation-message {
@@ -383,6 +377,9 @@
             </form>
         </div>
     </div>
+
+    <!-- 引入JS片段 -->
+    <div th:replace="~{common/js :: js}"></div>
 </div>
 
 <script th:inline="javascript">
