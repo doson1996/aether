@@ -18,14 +18,6 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="navbar-nav">
-                <a class="nav-link" th:classappend="${currentPage == 'index' ? 'active' : ''}" href="/api/page/">首页</a>
-                <a class="nav-link" th:classappend="${currentPage == 'add-job' ? 'active' : ''}" href="/api/page/add-job">添加任务</a>
-                <a class="nav-link" th:classappend="${currentPage == 'pay' ? 'active' : ''}" th:href="@{/page/products}">
-                    <i class="bi bi-cart-check"></i> 购买服务
-                </a>
-            </div>
-
             <!-- 右侧用户信息和菜单 -->
             <div class="navbar-nav ms-auto align-items-center">
                 <!-- 天气展示区域 -->
@@ -101,6 +93,7 @@
                     <span class="ms-1" th:text="${weatherInfo}"></span>
                 </span>
                 <span class="navbar-text ms-3" th:unless="${weatherInfo}">天气信息获取中...</span>
+<!--                <a class="nav-link" th:classappend="${currentPage == 'index' ? 'active' : ''}" href="/api/page/">首页</a>-->
 
                 <!-- 用户信息下拉菜单 -->
                 <div class="nav-item dropdown" th:if="${username}">
@@ -111,6 +104,8 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="/api/page/profile"><i class="bi bi-person"></i> 个人资料</a></li>
                         <li><a class="dropdown-item" href="/api/page/settings"><i class="bi bi-gear"></i> 系统设置</a></li>
+                        <li><a class="dropdown-item" th:classappend="${currentPage == 'pay' ? 'active' : ''}" th:href="@{/page/products}"><i class="bi bi-cart-check"></i> 购买服务</a></li>
+                        <li><a class="dropdown-item" th:classappend="${currentPage == 'add-job' ? 'active' : ''}"  th:href="@{/page/add-job}"><i class="bi bi-plus-circle"></i> 添加任务</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/api/auth/logout"><i class="bi bi-box-arrow-right"></i> 退出登录</a></li>                    </ul>
                 </div>

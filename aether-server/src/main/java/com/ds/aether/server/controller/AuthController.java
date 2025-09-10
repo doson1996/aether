@@ -3,7 +3,6 @@ package com.ds.aether.server.controller;
 import java.io.IOException;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.dev33.satoken.annotation.SaIgnore;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -123,7 +121,7 @@ public class AuthController {
 
     // 测试注销  ---- http://localhost:23843/api/auth/logout
     @RequestMapping("/logout")
-    public void logout( HttpServletResponse response) throws IOException {
+    public void logout(HttpServletResponse response) throws IOException {
         // 执行退出登录逻辑
         StpUtil.logout();
 

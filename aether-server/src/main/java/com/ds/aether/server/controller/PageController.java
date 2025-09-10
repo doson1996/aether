@@ -27,8 +27,7 @@ public class PageController {
     @GetMapping("/")
     public String indexPage(Model model) {
         model.addAttribute("title", "主页");
-        model.addAttribute("weatherInfo", WeatherUtil.getLiveWeather("重庆市"));
-        model.addAttribute("username", loginUtil.getUsername());
+        setLogInfo(model);
         return "index";
     }
 
@@ -43,6 +42,7 @@ public class PageController {
     @GetMapping("/add-job")
     public String addJobPage(Model model) {
         model.addAttribute("title", "添加任务");
+        setLogInfo(model);
         return "job/add-job";
     }
 
@@ -50,19 +50,27 @@ public class PageController {
     @GetMapping("/edit-job")
     public String editJob(Model model) {
         model.addAttribute("title", "编辑任务");
+        setLogInfo(model);
         return "job/edit-job";
     }
 
     @AccessLog(module = "页面控制", operation = "显示购买产品页面")
     @GetMapping("/products")
-    public String showProductsPage() {
+    public String showProductsPage(Model model) {
+        setLogInfo(model);
         return "products/products";
     }
 
     @AccessLog(module = "页面控制", operation = "显示支付页面")
     @GetMapping("/payment")
-    public String showPaymentPage() {
+    public String showPaymentPage(Model model) {
+        setLogInfo(model);
         return "pay/payment";
+    }
+
+    private void setLogInfo(Model model) {
+        model.addAttribute("weatherInfo", WeatherUtil.getLiveWeather("重庆市"));
+        model.addAttribute("username", loginUtil.getUsername());
     }
 
 }

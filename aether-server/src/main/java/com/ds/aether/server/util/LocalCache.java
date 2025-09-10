@@ -22,11 +22,11 @@ public class LocalCache {
         // 创建带过期策略的缓存
         CACHE = CacheBuilder.newBuilder()
                 // 设置缓存最大条目数
-                .maximumSize(100)
-                // 设置写入后10分钟过期
-                .expireAfterWrite(10, TimeUnit.MINUTES)
-                // 设置访问后5分钟过期（每次访问会重置过期时间）
-                .expireAfterAccess(5, TimeUnit.MINUTES)
+                .maximumSize(200)
+                // 设置写入后30分钟过期
+                .expireAfterWrite(30, TimeUnit.MINUTES)
+                // 设置访问后10分钟过期（每次访问会重置过期时间）
+                .expireAfterAccess(10, TimeUnit.MINUTES)
                 // 设置缓存移除监听器
                 .removalListener((RemovalListener<String, Object>) notification -> log.info("缓存项被移除 - Key: {}, Value: {}, 原因: {}",
                         notification.getKey(),
